@@ -1,0 +1,7 @@
+.type-product:hover {
+    /* CSS cho hover */
+    /* Ví dụ: thay đổi màu nền khi hover */
+   color: #A37B53;
+   cursor: pointer;
+
+}
