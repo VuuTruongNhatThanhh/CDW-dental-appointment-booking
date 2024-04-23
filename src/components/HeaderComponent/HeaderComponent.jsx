@@ -5,10 +5,19 @@ import {
     UserOutlined, CaretDownOutlined, ShoppingCartOutlined
   } from '@ant-design/icons';
 import ButtonInputSearch from "../ButtonInputSearch/ButtonInputSearch";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 
 
 const HeaderComponent = () => {
+    const navigate = useNavigate()
+    const handleNavigateLogin =() =>{
+        navigate('/sign-in')
+    }
+    // Lấy thông tin user từ redux
+    const user = useSelector((state)=> state.user)
+    // console.log('user', user)
     return (
         <div>
             {/* Cach anh user va gio hang qua 1 xiu */}
@@ -32,7 +41,11 @@ const HeaderComponent = () => {
                
                 <WrapperHeaderAccount>
                 <UserOutlined style={{ fontSize: '30px'}} />
-                    <div>
+                {/* Nếu có tên thì hiện tên, không thì hiện dk/dn */}
+                {user?.name ? (
+                    <div style={{marginTop:'6px', cursor:'pointer'}}>{user.name}</div>
+                ) : (
+                    <div onClick={handleNavigateLogin} style={{cursor:'pointer'}}>
                         <span>Đăng nhập/Đăng ký</span>
                         <div>
                         <span>Tài khoản</span>
@@ -40,6 +53,7 @@ const HeaderComponent = () => {
                             </div>
                      
                     </div>
+                    )}
                 </WrapperHeaderAccount>
                 <div>
                     <Badge count={4} size="small">
