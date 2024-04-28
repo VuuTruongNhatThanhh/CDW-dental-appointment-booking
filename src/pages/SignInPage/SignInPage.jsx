@@ -33,7 +33,8 @@ const { data, isPending, isSuccess } = mutation
 useEffect(()=>{
   if(isSuccess &&data?.status !== 'ERR'){
     navigate('/')
-    localStorage.setItem('access_token', data?.access_token)
+    // set nó xong lấy ra bên app.js, Đưa nó thành dạng json để có thể nhận biết bên app.js
+    localStorage.setItem('access_token', JSON.stringify(data?.access_token))
     if(data?.access_token){
       // Giải mã cái accesstoken đính kèm id với isAdmin
       const decoded = jwtDecode(data?.access_token)
@@ -47,10 +48,13 @@ useEffect(()=>{
 },[isSuccess])
 
 const handleGetDetailsUser = async(id, token) => {
+  
   const res = await UserService.getDetailsUser(id, token)
   // Truyền tất cả thông tin người dùng vào redux/userSlide 
   //Tách từng thuộc tính của data ra, với đưa token vào trong cái biến access_token
+  // Dùng redux
   dispatch(updateUser({...res?.data, access_token: token}))
+  
   
 }
 

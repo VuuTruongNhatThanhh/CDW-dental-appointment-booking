@@ -27,3 +27,11 @@ export const WrapperHeaderAccount = styled.div `
     font-size: 12px;
 `
 
+export const WrapperContentPopUp = styled.p `
+    cursor: pointer;
+    &:hover {
+        color: blue;
+        
+    }
+`
+

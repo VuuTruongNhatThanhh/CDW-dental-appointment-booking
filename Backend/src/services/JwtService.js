@@ -55,12 +55,12 @@ const refreshTokenJWTService =(token) => {
                     message:'The authentication'
                 })
             }
-            const { payload } = user
+           
 
             // Tạo ra 1 cái access_token mới ứng với id và isAdmin
             const access_token = await generalAccessToken({
-              id: payload?.id,
-              isAdmin: payload?.isAdmin
+              id: user?.id,
+              isAdmin: user?.isAdmin
             })
             console.log('access_token', access_token)
             resolve({

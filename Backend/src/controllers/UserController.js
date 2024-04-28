@@ -68,8 +68,9 @@ const loginUser = async(req, res) => {
       const { refresh_token,...newResponse } =response
     //   Đưa cái refresh_token này vào cookie, kiểm tra bằng TC tab cookie
       res.cookie('refresh_token', refresh_token, {
-        HttpOnly: true, //chỉ lấy được nó thông qua http, ko lấy được qua js
-        Secure: true,  //Thêm những bảo mật ở phía client
+        httpOnly: true, //chỉ lấy được nó thông qua http, ko lấy được qua js
+        secure: false,  //Thêm những bảo mật ở phía client, khi nào deploy thì để thành true (https)
+        samesite: 'strict'
       })
       console.log('response',response)
 
@@ -164,6 +165,7 @@ const getDetailsUser = async(req, res) => {
 }  
 
 const refreshToken = async(req, res) => {
+    // console.log('req.cookies.refresh_token', req.cookies.refresh_token)
     try{
         // Lấy ra được cái id từ access token
       const token = req.cookies.refresh_token
@@ -186,6 +188,24 @@ const refreshToken = async(req, res) => {
     }
 }
 
+const logoutUser = async(req, res) => {
+    try{
+        // Xóa cái cookie lấy vào khi login
+        res.clearCookie('refresh_token')
+
+       
+            return res.status(200).json({
+                status: 'OK',
+                message: 'Logout successfully'
+
+            })
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}
+
 
 
 // Phải export nó ra ngoài mới sử dụng được
@@ -196,5 +216,6 @@ module.exports = {
     deleteUser,
     getAllUser,
     getDetailsUser,
-    refreshToken
+    refreshToken,
+    logoutUser
 } 
