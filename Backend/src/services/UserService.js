@@ -1,6 +1,7 @@
 const User = require("../models/UserModel")
 const bcrypt = require("bcrypt")
 const { generalAccessToken, generalRefreshToken } = require("./JwtService")
+const { use } = require("../routes/UserRouter")
 // Xử lý api ở đây
 const createUser = (newUser) =>{
     return new Promise(async(resolve, reject) =>{
@@ -184,6 +185,7 @@ const getDetailsUser = (id) =>{
             const user = await User.findOne({
                 _id: id
             })
+            console.log('user',user)
             if(user===null){
                 resolve({
                     status: 'OK',

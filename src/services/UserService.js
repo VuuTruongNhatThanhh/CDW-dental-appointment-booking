@@ -35,3 +35,14 @@ export const logoutUser = async () => {
     const res = await axios.post(`${API_URL_BACK_END}/user/log-out`)
     return res.data
 }
+
+//access token là để đúng user đó hoặc là admin mới được update
+export const updateUser = async (id, data, access_token) => {
+    const res = await axiosJWT.put(`${API_URL_BACK_END}/user/update-user/${id}`,data,{
+        headers: {
+            token:`Bearer ${access_token}`, 
+        }
+    })
+    
+    return res.data
+}

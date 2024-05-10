@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge, Button, Col, Popover} from "antd";
 import { WrapperHeader, WrapperTextHeader, WrapperHeaderAccount, WrapperContentPopUp } from "./style";
 import {
@@ -16,6 +16,10 @@ const HeaderComponent = () => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [isPending, setLoading] = useState(false)
+    const [username, setUsername] = useState('')
+    const [userAvatar, setUserAvatar] = useState('')
+
+
     const handleNavigateLogin =() =>{
         navigate('/sign-in')
     }
@@ -28,16 +32,27 @@ const HeaderComponent = () => {
             localStorage.removeItem('access_token');
             setLoading(false)
      }
+   
+
+
 
     const content = (
         <div>
-          <WrapperContentPopUp>Thông tin người dùng</WrapperContentPopUp>
+          <WrapperContentPopUp onClick={() => navigate('/profile-user')}>Thông tin người dùng</WrapperContentPopUp>
           <WrapperContentPopUp onClick={handleLogout}>Đăng xuất</WrapperContentPopUp>
         </div>
       );
     // Lấy thông tin user từ redux
     const user = useSelector((state)=> state.user)
     // console.log('user', user)
+
+      // Dùng để cập nhật cái tên user trên header sau khi update bên profile
+      useEffect(()=>{
+        setLoading(true)
+        setUsername(user?.name)
+        setUserAvatar(user?.avatar)
+        setLoading(false)
+    },[user?.name, user?.avatar])
     return (
         <div>
             {/* Cach anh user va gio hang qua 1 xiu */}
@@ -60,14 +75,25 @@ const HeaderComponent = () => {
                  <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center'}}>
                  <Loading isPending={isPending}>
                 <WrapperHeaderAccount>
-                <UserOutlined style={{ fontSize: '30px'}} />
+                    {/* Nếu có avt thì hiển thị avt còn không hiển thị icon user */}
+                    {userAvatar ?(
+                        <img src={userAvatar} alt="avatar" style={{
+                            height:'40px',
+                            width:'40px',
+                            borderRadius:'50%',
+                            objectFit:'cover'  
+                        }}/>
+                    ):(
+                        <UserOutlined style={{ fontSize: '30px'}} />
+                    )}
+               
                 {/* Nếu có tên thì hiện tên, không thì hiện dk/dn */}
-                {user?.name ? (
+                {user?.access_token ? (
                     <>
                   
 
                     <Popover content={content}  trigger="click">
-                    <div style={{marginTop:'6px', cursor:'pointer'}}>{user.name}</div>
+                    <div style={{marginTop:'6px', cursor:'pointer'}}>{username || user.email || 'User'}</div>
                     </Popover>
                     </>
                 ) : (
