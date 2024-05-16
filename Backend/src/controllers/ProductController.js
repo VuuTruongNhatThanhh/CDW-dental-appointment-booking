@@ -9,7 +9,7 @@ const createProduct = async(req, res) => {
         
       
 
-        if(!name || !image || !type || !price || !countInStock || !rating){
+        if(!name || !image || !type || !price || !countInStock || !rating || !description){
             return res.status(200).json({
                 status: 'ERR',
                 message: 'The input is required'
@@ -98,7 +98,7 @@ const getAllProduct = async(req, res) => {
       const { limit, page, sort, filter } = req.query
     //   Nếu không có number nó sẽ hiểu nhầm là string  
     // Nếu không có limit thì sẽ là 8, không có page thì sẽ là 0
-      const response =   await ProductService.getAllProduct(Number(limit) || 8, Number(page) || 0, sort, filter)
+      const response =   await ProductService.getAllProduct(Number(limit) || 20, Number(page) || 0, sort, filter)
         return res.status(200).json(response)
     } catch (e) {
         return res.status(404).json({

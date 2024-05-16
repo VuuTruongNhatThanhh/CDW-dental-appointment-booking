@@ -12,7 +12,7 @@ import { resetUser } from "../../redux/slides/userSlide";
 import Loading from "../LoadingComponent/Loading";
 
 
-const HeaderComponent = () => {
+const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [isPending, setLoading] = useState(false)
@@ -31,17 +31,13 @@ const HeaderComponent = () => {
             dispatch(resetUser())
             localStorage.removeItem('access_token');
             setLoading(false)
+            navigate('/')
      }
    
 
 
 
-    const content = (
-        <div>
-          <WrapperContentPopUp onClick={() => navigate('/profile-user')}>Thông tin người dùng</WrapperContentPopUp>
-          <WrapperContentPopUp onClick={handleLogout}>Đăng xuất</WrapperContentPopUp>
-        </div>
-      );
+   
     // Lấy thông tin user từ redux
     const user = useSelector((state)=> state.user)
     // console.log('user', user)
@@ -53,28 +49,47 @@ const HeaderComponent = () => {
         setUserAvatar(user?.avatar)
         setLoading(false)
     },[user?.name, user?.avatar])
+
+
+    const content = (
+        <div style={{userSelect:'none'}}>
+          <WrapperContentPopUp  onClick={() => navigate('/profile-user')}>Thông tin người dùng</WrapperContentPopUp>
+          {/* là admin thì mới hiện mục này */}
+          {user?.isAdmin && (
+                <WrapperContentPopUp  onClick={() => navigate('/system/admin')}>Quản lý hệ thống</WrapperContentPopUp>
+          )}
+          
+          <WrapperContentPopUp onClick={handleLogout}>Đăng xuất</WrapperContentPopUp>
+        </div>
+      );
     return (
         <div>
             {/* Cach anh user va gio hang qua 1 xiu */}
-            <WrapperHeader>
+            <WrapperHeader 
+            style={{justifyContent: isHiddenSearch && isHiddenSearch ? 'space-between':'unset'}}
+            >
                 {/* Chia cac cot ra (tong la 24 cot) */}
                  <Col span={6}>
                     <WrapperTextHeader style={{fontFamily:'Courier'}}> TIMELESS PELLE NOOK </WrapperTextHeader>
                  </Col>
-                 <Col span={12} >
-                 <ButtonInputSearch
-                 size="large" 
-                 textButton="Tìm kiếm" 
-                 placeholder="Nhập sản phẩm muốn tìm kiếm"
-                 bordered={false}
-               
-                 />
-
-
-                 </Col>
+                 {/* hidden search bên admin page là true thì không hiện cái này */}
+                 {/* {!isHiddenSearch &&( */}
+                        <Col span={12} >
+                        <ButtonInputSearch
+                        size="large" 
+                        textButton="Tìm kiếm" 
+                        placeholder="Nhập sản phẩm muốn tìm kiếm"
+                        bordered={false}
+                      
+                        />
+       
+       
+                        </Col>
+                 {/* )} */}
+             
                  <Col span={6} style={{ display: 'flex', gap: '20px', alignItems: 'center'}}>
                  <Loading isPending={isPending}>
-                <WrapperHeaderAccount>
+                <WrapperHeaderAccount >
                     {/* Nếu có avt thì hiển thị avt còn không hiển thị icon user */}
                     {userAvatar ?(
                         <img src={userAvatar} alt="avatar" style={{
@@ -92,8 +107,8 @@ const HeaderComponent = () => {
                     <>
                   
 
-                    <Popover content={content}  trigger="click">
-                    <div style={{marginTop:'6px', cursor:'pointer'}}>{username || user.email || 'User'}</div>
+                    <Popover  content={content}  trigger="click">
+                    <div style={{marginTop:'6px', cursor:'pointer', userSelect:'none'}}>{username || user.email || 'User'}</div>
                     </Popover>
                     </>
                 ) : (
@@ -108,13 +123,16 @@ const HeaderComponent = () => {
                     )}
                 </WrapperHeaderAccount>
                 </Loading>
-                <div>
+                {!isHiddenCart&&(
+                    <div>
                     <Badge count={4} size="small">
                     <ShoppingCartOutlined style={{ fontSize: '30px', color: 'black'}} />
                     </Badge>
-                <span style={{color:'black'}}>Giỏ hàng</span>
-              
-                </div>
+                    <span style={{color:'black'}}>Giỏ hàng</span>
+
+                    </div>
+                )}
+               
                </Col>
             </WrapperHeader>
         </div>

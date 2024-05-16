@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom';
 
 import {routes} from './routes'
@@ -9,20 +9,30 @@ import { useQuery } from '@tanstack/react-query';
 import { isJsonString } from './utils';
 import { jwtDecode } from "jwt-decode";
 import * as UserService from '../src/services/UserService'
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { updateUser } from './redux/slides/userSlide';
+import Loading from './components/LoadingComponent/Loading';
+
 
 
 
 
  function App() {
   const dispatch = useDispatch();
+  const [isPending, setIsLoading] = useState(false)
+
+  // Lấy dữ liệu user từ redux
+  const user = useSelector((state)=> state.user)
     useEffect(() =>{
+    
       //Trong 30s thì reload không mất user, cần cái refresh_token
       const { storageData, decoded } = handleDecoded()
     
         if(decoded?.id){
+          setIsLoading(true)
           handleGetDetailsUser(decoded?.id, storageData)
+        }else{
+          setIsLoading(false)
         }
       
       // console.log(' storageData', storageData)
@@ -56,10 +66,12 @@ import { updateUser } from './redux/slides/userSlide';
     })
 
     const handleGetDetailsUser = async(id, token) => {
+   
       const res = await UserService.getDetailsUser(id, token)
       // Truyền tất cả thông tin người dùng vào redux/userSlide 
       //Tách từng thuộc tính của data ra, với đưa token vào trong cái biến access_token
       dispatch(updateUser({...res?.data, access_token: token}))
+      setIsLoading(false)
       
     }
   // useEffect(()=>{
@@ -77,7 +89,7 @@ import { updateUser } from './redux/slides/userSlide';
  
   return (
     <div>
-      
+      <Loading isPending={isPending}>
       <Router>
         <Routes>
           {/* url để vào page
@@ -85,11 +97,14 @@ import { updateUser } from './redux/slides/userSlide';
           */}
          {routes.map((route) => {
           const Page = route.page
+          // Nghĩa là nếu isPrivate trong route/index mà là true thì sẽ không vô được (không hiển thị trang), false thì vô được
+          // true thì user phải là admin thì dô được
+          const ischeckAuth = !route.isPrivate || user.isAdmin
           // isShowHeader true thì hiện, không thì hiện Fragment (ko hiện)
           const Layout = route.isShowHeader ? DefaultComponent : Fragment
           return (
             // url (route.path) trong routes/index.js
-            <Route key={route.path} path={route.path} element={
+            <Route key={route.path} path={ischeckAuth ? route.path : undefined} element={
             <>
             <Layout>
               {/* Chữ hiện trên trang dc gán vào biến Page (route.page) trong routes/index.js */}
@@ -101,6 +116,7 @@ import { updateUser } from './redux/slides/userSlide';
          })}
         </Routes>
       </Router>
+      </Loading>
     </div>
   )
 }

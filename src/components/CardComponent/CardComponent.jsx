@@ -6,7 +6,10 @@ import { StarFilled
   } from '@ant-design/icons';
 import soldout from '../../assets/image/soldout.png'
 
-const CardComponent = () => {
+// props là để nhận mấy cái data truyền từ homepage qua
+const CardComponent = (props) => {
+  const {countInStock,description,image,name,price, rating,type ,discount, selled} = props
+ 
     // Sản phẩm
     return (
         <WrapperCardStyle
@@ -16,16 +19,16 @@ const CardComponent = () => {
         cover={<img alt="example" src="https://assets.hermes.com/is/image/hermesproduct/084260CKAC_side_wm_4?size=3000,3000&extend=0,0,0,0&align=0,0&$product_item_grid_g$&wid=700&hei=700" />}
       >
         <img src={soldout} alt="" style={{width:'90px', height:'90px', position:'absolute', top:0, left:0}} />
-       <StyleNameProduct>Túi Garden Party</StyleNameProduct>
+       <StyleNameProduct>{name}</StyleNameProduct>
        <WrapperReportText>
         <span>
-             <span>4.96</span> <StarFilled style={{fontSize:'10px', color:'yellow'}} />
+             <span>{rating}</span> <StarFilled style={{fontSize:'10px', color:'yellow'}} />
         </span>
-        <span> | Đã bán 1000+</span>
+        <span> | Đã bán {selled || 1000}+</span>
        </WrapperReportText>
        <WrapperPriceText>
-        1.000.000 <sup><u>đ</u></sup>
-        <WrapperDiscountText>-5%</WrapperDiscountText>
+        {price} <sup><u>đ</u></sup>
+        <WrapperDiscountText>-{discount ||5}%</WrapperDiscountText>
        </WrapperPriceText>
       </WrapperCardStyle>
      

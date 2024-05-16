@@ -6,10 +6,15 @@ body {
   box-sizing: border-box;
   padding: 0;
   background-color: #F6F1EB;
-  
+  /* height: 2000px; */
   
 }
 
 html {
   font-size: 100%;
+  user-select: none;
+}
+
+*{
+  user-select: none;
 }
