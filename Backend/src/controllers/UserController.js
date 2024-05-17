@@ -129,6 +129,29 @@ const deleteUser = async(req, res) => {
     }
 }  
 
+const deleteMany = async(req, res) => {
+    try{
+        // Lấy ra được cái id từ access token
+      const ids = req.body.ids
+      const token = req.headers
+        if(!ids){
+            return res.status(200).json({
+                status: 'ERR',
+                message: 'The ids is required'
+
+            })
+        }
+    //   console.log('user id', userId)
+    
+      const response =   await UserService.deleteManyUser(ids)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+} 
+
 const getAllUser = async(req, res) => {
     try{
       
@@ -217,5 +240,6 @@ module.exports = {
     getAllUser,
     getDetailsUser,
     refreshToken,
-    logoutUser
+    logoutUser,
+    deleteMany
 } 

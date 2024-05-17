@@ -121,6 +121,24 @@ const deleteProduct = (id) =>{
     })
 }
 
+const deleteManyProduct = (ids) =>{
+    return new Promise(async(resolve, reject) =>{
+        try{
+      
+           
+            // delete product
+             await Product.deleteMany({_id: ids})
+                resolve({
+                    status: 'OK',
+                    message: 'DELETE PRODUCT SUCCESS',
+                   
+                })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
 // limit là số lượng sản phẩm trên 1 trang (phân trang)
 const getAllProduct = (limit, page, sort, filter) =>{
     console.log('sort', sort)
@@ -184,6 +202,7 @@ module.exports = {
     updateProduct,
     getDetailProduct,
     deleteProduct,
-    getAllProduct
+    getAllProduct,
+    deleteManyProduct
   
 }

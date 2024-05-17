@@ -158,6 +158,27 @@ const deleteUser = (id) =>{
     })
 }
 
+const deleteManyUser = (ids) =>{
+    return new Promise(async(resolve, reject) =>{
+        try{
+      
+           
+            // delete user
+             await User.deleteMany({_id: ids})
+                resolve({
+                    status: 'OK',
+                    message: 'DELETE USER SUCCESS',
+                    // Trả về user mới sau khi update
+                })
+            // }
+            // resolve({})
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
+
 const getAllUser = () =>{
     return new Promise(async(resolve, reject) =>{
         try{
@@ -212,6 +233,7 @@ module.exports = {
     updateUser,
     deleteUser,
     getAllUser,
-    getDetailsUser
+    getDetailsUser,
+    deleteManyUser
   
 }

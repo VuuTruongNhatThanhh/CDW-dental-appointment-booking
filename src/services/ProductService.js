@@ -33,3 +33,14 @@ export const deleteProduct = async (id, access_token) => {
     })
     return res.data
 }
+
+// data là những cái ids
+// post là do mình nhận dữ liệu qua request.body
+export const deleteManyProduct = async (data, access_token) => {
+    const res = await axiosJWT.post(`${API_URL_BACK_END}/product/delete-many`, data,{
+        headers: {
+            token:`Bearer ${access_token}`, 
+        }
+    })
+    return res.data
+}

@@ -74,9 +74,20 @@ const AdminProduct = () =>{
       }
     )
 
+    const mutationDeletedMany = useMutationHooks(
+      (data) => {
+        // ... vì có nhiều id
+          const{ token, ...ids} = data
+          // Trả về dữ liệu nghĩa là mutation thành công isSuccess
+         return ProductService.deleteManyProduct(ids, token)
+      }
+    )
+
+    // console.log('deleteManyP',mutationDeletedMany)
+
     const getAllProduct = async() =>{
       const res = await ProductService.getAllProduct()
-      console.log('res',res)
+      // console.log('res',res)
       return res
     }
 
@@ -105,12 +116,12 @@ const AdminProduct = () =>{
 
     // Khắc phục cái lỗi khi lần đầu tiên nhấn vào chỉnh sửa sản phẩm thì không lấy được id
     useEffect(()=>{
-        if(rowSelected){
+        if(rowSelected && isOpenDrawer){
           setIsPendingUpdate(true)
           fetchGetDetailsProduct(rowSelected)
         }
 
-    }, [rowSelected])
+    }, [rowSelected, isOpenDrawer])
 
     // console.log('statePDetail', stateProductDetails)
 
@@ -126,6 +137,7 @@ const AdminProduct = () =>{
     const { data, isPending, isSuccess, isError } = mutation
     const { data: dataUpdated, isPending: isPendingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isPending: isPendingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDeleted
+    const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
     // console.log('dataUpdated', dataUpdated)
     // const {isPending: isPendingProducts, data: products} = useQuery(['products'],getAllProduct)
     const queryProduct = useQuery({
@@ -333,6 +345,17 @@ const AdminProduct = () =>{
       }
     },[isSuccessDeleted])
 
+    useEffect(()=>{
+      if(isSuccessDeletedMany && dataDeletedMany?.status ==='OK'){
+        message.success('Xóa sản phẩm thành công')
+        // handleCancel()
+      } else if(isErrorDeletedMany) {
+        message.error('Có lỗi trong quá trình xóa sản phẩm')
+      }
+    },[isSuccessDeletedMany])
+
+    
+
     const showModal = () => {
         setIsModalOpen(true);
       };
@@ -448,6 +471,17 @@ const onUpdateProduct = () =>{
 
 }
 
+const handleDeleteManyProducts = (ids) =>{
+  // console.log('_id', {_id})
+
+  mutationDeletedMany.mutate({ids: ids, token: user?.access_token},{
+    // Cập nhật lại table sau khi xóa sản phẩm
+    onSettled:()=>{
+      queryProduct.refetch()
+    }
+  })
+}
+
     return (
         <div>
             <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -456,7 +490,7 @@ const onUpdateProduct = () =>{
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
-          <TableComponent columns={columns} isPending={isPendingProducts} data={dataTable} onRow={(record, rowIndex) => {
+          <TableComponent handleDeleteMany={handleDeleteManyProducts} columns={columns} isPending={isPendingProducts} data={dataTable} onRow={(record, rowIndex) => {
     return {
       // onRow này dùng để lấy ra được cái id của sản phẩm khi click vào
       onClick: (event) => {
@@ -466,7 +500,7 @@ const onUpdateProduct = () =>{
     };
   }}/>
           </div>
-          <ModalComponent title="Tạo mới sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null} >
+          <ModalComponent forceRender title="Tạo mới sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null} >
           <Loading isPending={isPending}>
           <Form
     name="basic"
@@ -646,7 +680,7 @@ const onUpdateProduct = () =>{
           </Loading>
       </DrawerComponent>
 
-      <ModalComponent title="Xoá sản phẩm" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteProduct} >
+      <ModalComponent  title="Xoá sản phẩm" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteProduct} >
           <Loading isPending={isPendingDeleted}>
         <div>Bạn có chắc muốn xóa sản phẩm này không?</div>
           </Loading>

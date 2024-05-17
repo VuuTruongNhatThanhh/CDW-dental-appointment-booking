@@ -62,6 +62,12 @@ const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
           <WrapperContentPopUp onClick={handleLogout}>Đăng xuất</WrapperContentPopUp>
         </div>
       );
+
+    const onSearch = (e) =>{
+        // Hiển thị các ký tự nhập từ bàn phím vào ô tìm kiếm
+        console.log('e', e.target.value)
+    }   
+      
     return (
         <div>
             {/* Cach anh user va gio hang qua 1 xiu */}
@@ -80,7 +86,7 @@ const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
                         textButton="Tìm kiếm" 
                         placeholder="Nhập sản phẩm muốn tìm kiếm"
                         bordered={false}
-                      
+                      onChange={onSearch}
                         />
        
        
