@@ -22,6 +22,24 @@ export const getDetailsUser = async (id, access_token) => {
     return res.data
 }
 
+export const deleteUser = async (id, access_token) => {
+    const res = await axiosJWT.delete(`${API_URL_BACK_END}/user/delete-user/${id}`,{
+        headers: {
+            token:`Bearer ${access_token}`, 
+        }
+    })
+    return res.data
+}
+
+export const getAllUser = async (access_token) => {
+    const res = await axiosJWT.get(`${API_URL_BACK_END}/user/getAll`,{
+        headers: {
+            token:`Bearer ${access_token}`, 
+        }
+    })
+    return res.data
+}
+
 export const refreshToken = async () => {
     const res = await axios.post(`${API_URL_BACK_END}/user/refresh-token`, {
         // Khi mà có cookie thì sẽ tự động lấy cookie
@@ -44,5 +62,15 @@ export const updateUser = async (id, data, access_token) => {
         }
     })
     
+    return res.data
+}
+
+// data là những cái ids
+export const deleteManyUser = async (data, access_token) => {
+    const res = await axiosJWT.post(`${API_URL_BACK_END}/user/delete-many`, data,{
+        headers: {
+            token:`Bearer ${access_token}`, 
+        }
+    })
     return res.data
 }
