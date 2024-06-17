@@ -72,9 +72,9 @@ const loginUser = async(req, res) => {
         secure: false,  //Thêm những bảo mật ở phía client, khi nào deploy thì để thành true (https)
         samesite: 'strict'
       })
-      console.log('response',response)
+    //   console.log('response',response)
 
-        return res.status(200).json(newResponse)
+        return res.status(200).json({...newResponse, refresh_token})
     } catch (e) {
         return res.status(404).json({
             message: e
@@ -191,7 +191,7 @@ const refreshToken = async(req, res) => {
     // console.log('req.cookies.refresh_token', req.cookies.refresh_token)
     try{
         // Lấy ra được cái id từ access token
-      const token = req.cookies.refresh_token
+      let token = req.headers.token.split(' ')[1]
 
         if(!token){
             return res.status(200).json({

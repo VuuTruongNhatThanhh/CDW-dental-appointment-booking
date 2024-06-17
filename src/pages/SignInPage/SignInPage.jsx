@@ -4,7 +4,7 @@ import {WrapperContainerLeft, WrapperContainerRight, WrapperTextLight} from './s
 import ButtonComponent from "../../components/ButtonComponent/ButtonComponent";
 import imageLogo  from '../../assets/image/logo_login.png'
 import { Divider, Image } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { EyeFilled, EyeInvisibleFilled } from '@ant-design/icons'
 import * as UserService from '../../services/UserService'
 import { useMutation } from "@tanstack/react-query";
@@ -17,6 +17,8 @@ import { updateUser } from "../../redux/slides/userSlide";
 
 const SignInPage = () => {
     const [isShowPassword, setIsShowPassword] = useState(false)
+    // lấy được cái state đường dẫn chi tiết sản phẩm sau khi đăng nhập
+    const location = useLocation()
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate()
@@ -31,10 +33,18 @@ const mutation = useMutationHooks(
 const { data, isPending, isSuccess } = mutation
 
 useEffect(()=>{
+  // console.log('location', location)
   if(isSuccess &&data?.status !== 'ERR'){
-    navigate('/')
+    // Nếu có cái location state được truyền từ trang chi tiết sản phẩm qua thì sau khi đăng nhập chuyển đến trang sản phẩm đó
+    if(location?.state){
+      navigate(location?.state)
+    }else{
+      navigate('/')
+    }
+    
     // set nó xong lấy ra bên app.js, Đưa nó thành dạng json để có thể nhận biết bên app.js
     localStorage.setItem('access_token', JSON.stringify(data?.access_token))
+    localStorage.setItem('refresh_token', JSON.stringify(data?.refresh_token))
     if(data?.access_token){
       // Giải mã cái accesstoken đính kèm id với isAdmin
       const decoded = jwtDecode(data?.access_token)
@@ -48,12 +58,15 @@ useEffect(()=>{
 },[isSuccess])
 
 const handleGetDetailsUser = async(id, token) => {
-  
+  const storage = localStorage.getItem('refresh_token')
+  const refreshToken = JSON.parse(storage)
   const res = await UserService.getDetailsUser(id, token)
   // Truyền tất cả thông tin người dùng vào redux/userSlide 
   //Tách từng thuộc tính của data ra, với đưa token vào trong cái biến access_token
   // Dùng redux
-  dispatch(updateUser({...res?.data, access_token: token}))
+  dispatch(updateUser({...res?.data, access_token: token,
+    refreshToken
+  }))
   
   
 }

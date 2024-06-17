@@ -2,7 +2,6 @@ import { Divider, Dropdown, Radio, Space, Table } from "antd";
 import React, { useMemo, useRef, useState } from "react";
 import Loading from "../LoadingComponent/Loading";
 import { DownOutlined, SmileOutlined } from '@ant-design/icons';
-import { DownloadTableExcel } from "react-export-table-to-excel";
 import { Excel } from "antd-table-saveas-excel";
 
 const TableComponent = (props) => {

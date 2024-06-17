@@ -28,7 +28,7 @@ const generalAccessToken = async(payload) => {
     const access_token = jwt.sign({
         // ... để lấy ra từng thuộc tính của payload chứ không phải một chuỗi
         ...payload
-    }, process.env.ACCESS_TOKEN, { expiresIn: '30s' })
+    }, process.env.ACCESS_TOKEN, { expiresIn: '365d' })
 
     return access_token
 }

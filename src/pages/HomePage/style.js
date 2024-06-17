@@ -10,15 +10,15 @@ export const WrapperTypeProduct = styled.div`
 `
 
 export const WrapperButtonMore = styled(ButtonComponent)`
-    & :hover {
-        color: #A37B53;
-      
-    }
+    
+ 
+    display: ${(props) => props.disabled ? 'none':''}
 `
 
 export const WrapperProduct = styled.div`
    display: flex;
    gap: 20px;
-   margin-top: 20px;
+   margin-top: 40px;
+   margin-bottom: 20px;
    flex-wrap: wrap;
 `

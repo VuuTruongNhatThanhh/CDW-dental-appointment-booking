@@ -5,7 +5,7 @@ const ProductService = require('../services/ProductService')
 const createProduct = async(req, res) => {
     try{
         // Lấy ra những thuộc tính request sau khi send bằng TC
-        const {name, image, type, price, countInStock, rating, description} = req.body
+        const {name, image, type, price, countInStock, rating, description, discount} = req.body
         
       
 
@@ -119,7 +119,19 @@ const getAllProduct = async(req, res) => {
       const { limit, page, sort, filter } = req.query
     //   Nếu không có number nó sẽ hiểu nhầm là string  
     // Nếu không có limit thì sẽ là 8, không có page thì sẽ là 0
-      const response =   await ProductService.getAllProduct(Number(limit) || 20, Number(page) || 0, sort, filter)
+      const response =   await ProductService.getAllProduct(Number(limit) || null, Number(page) || 0, sort, filter)
+        return res.status(200).json(response)
+    } catch (e) {
+        return res.status(404).json({
+            message: e
+        })
+    }
+}  
+
+const getAllType = async(req, res) => {
+    try{
+  
+      const response =   await ProductService.getAllType()
         return res.status(200).json(response)
     } catch (e) {
         return res.status(404).json({
@@ -138,5 +150,6 @@ module.exports = {
     getDetailProduct,
     deleteProduct,
     getAllProduct,
-    deleteManyProduct
+    deleteManyProduct,
+    getAllType
 } 

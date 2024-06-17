@@ -8,6 +8,9 @@ export const WrapperCardStyle = styled(Card)`
         width: 200px;
     },
     position: relative;
+    // hết hàng thì chuyển thành màu xám và đổi con trỏ chuột
+    background-color: ${props => props.disabled ? '#ccc' : '#fff'};
+    cursor: ${props => props.disabled ? 'not-allowed' : 'pointer'}
 `
 
 export const StyleNameProduct = styled.div`

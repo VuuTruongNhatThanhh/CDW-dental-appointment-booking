@@ -1,10 +1,10 @@
 import React, { useEffect, useRef, useState } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./style";
-import { Button, Form, Modal, Space, message } from "antd";
+import { Button, Form, Modal, Select, Space, message } from "antd";
 import {PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined} from '@ant-design/icons'
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
-import { getBase64 } from "../../utils";
+import { getBase64, renderOptions } from "../../utils";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as ProductService from '../../services/ProductService'
 import Loading from "../LoadingComponent/Loading";
@@ -19,6 +19,7 @@ const AdminProduct = () =>{
     const [isOpenDrawer, setIsOpenDrawer] = useState(false)
     const [isPendingUpdate, setIsPendingUpdate] = useState(false)
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
+    const [typeSelect, setTypeSelect] = useState('')
 
     // Lấy thông tin user từ Redux
     const user = useSelector((state) => state?.user)
@@ -27,16 +28,19 @@ const AdminProduct = () =>{
     const [searchedColumn, setSearchedColumn] = useState('');
     const searchInput = useRef(null);
      // Dùng trong handleCancel
+     const initial = () =>({
+      name: '',
+      price: '',
+      description: '',
+      rating: '',
+      image:'',
+      type:'',
+      countInStock:'',
+      newType:'',
+      discount:''
+     })
      const [form] = Form.useForm()
-    const [stateProduct, setStateProduct] = useState({
-        name: '',
-        price: '',
-        description: '',
-        rating: '',
-        image:'',
-        type:'',
-        countInStock:''
-    })
+    const [stateProduct, setStateProduct] = useState(initial())
 
     const [stateProductDetails, setStateProductDetails] = useState({
       name: '',
@@ -45,16 +49,17 @@ const AdminProduct = () =>{
       rating: '',
       image:'',
       type:'',
-      countInStock:''
+      countInStock:'',
+      discount:''
   })
 
    
 
     const mutation = useMutationHooks(
       (data) => {
-          const{name, price, description, rating, image, type, countInStock} = data
+          const{name, price, description, rating, image, type, countInStock, discount} = data
           // Trả về dữ liệu nghĩa là mutation thành công isSuccess
-         return ProductService.createProduct({name, price, description, rating, image, type, countInStock})
+         return ProductService.createProduct({name, price, description, rating, image, type, countInStock, discount})
       }
     )
 
@@ -97,13 +102,14 @@ const AdminProduct = () =>{
       // nếu có data thì hiển thị thông tin sản phẩm khi bấm vào chỉnh sửa
       if(res?.data){
         setStateProductDetails({
-          name: res?.data.name,
-          price: res?.data.price,
-          description: res?.data.description,
-          rating: res?.data.rating,
-          image: res?.data.image,
-          type: res?.data.type,
-          countInStock: res?.data.countInStock
+          name: res?.data?.name,
+          price: res?.data?.price,
+          description: res?.data?.description,
+          rating: res?.data?.rating,
+          image: res?.data?.image,
+          type: res?.data?.type,
+          countInStock: res?.data?.countInStock,
+          discount: res?.data?.discount
         })
       }
       setIsPendingUpdate(false)
@@ -111,8 +117,14 @@ const AdminProduct = () =>{
 
     //Cái useEffect này để hiển thị thông tin sản phẩm trong form sau khi bấm vào chỉnh sửa
     useEffect(()=>{
-      form.setFieldsValue(stateProductDetails)
-    },[form, stateProductDetails])
+      // Khắc phục cái lỗi khi sửa xong tạo bị lỗi
+      if(!isModalOpen) {
+        form.setFieldsValue(stateProductDetails)
+      }else{
+        form.setFieldsValue(initial())
+      }
+      
+    },[form, stateProductDetails, isModalOpen])
 
     // Khắc phục cái lỗi khi lần đầu tiên nhấn vào chỉnh sửa sản phẩm thì không lấy được id
     useEffect(()=>{
@@ -134,6 +146,13 @@ const AdminProduct = () =>{
       setIsOpenDrawer(true)
     }
 
+    const fetchAllTypeProduct = async () =>{
+      const  res = await ProductService.getAllTypeProduct()
+     return res
+    
+    }
+    
+
     const { data, isPending, isSuccess, isError } = mutation
     const { data: dataUpdated, isPending: isPendingUpdated, isSuccess: isSuccessUpdated, isError: isErrorUpdated } = mutationUpdate
     const { data: dataDeleted, isPending: isPendingDeleted, isSuccess: isSuccessDeleted, isError: isErrorDeleted } = mutationDeleted
@@ -144,7 +163,12 @@ const AdminProduct = () =>{
       queryKey: ['products'],
       queryFn: getAllProduct
     })
+    const typeProduct = useQuery({
+      queryKey: ['type-product'],
+      queryFn: fetchAllTypeProduct
+    })
     // console.log('product', products)
+    // console.log('type-product', typeProduct)
 
     const { isPending: isPendingProducts, data: products } = queryProduct
 
@@ -370,7 +394,8 @@ const AdminProduct = () =>{
           rating: '',
           image:'',
           type:'',
-          countInStock:''
+          countInStock:'',
+          discount:''
         })
         form.resetFields()
       };
@@ -403,7 +428,17 @@ const AdminProduct = () =>{
       };
 
     const onFinish=() =>{
-        mutation.mutate(stateProduct,{
+      const params = {
+        name: stateProduct.name,
+        price: stateProduct.price,
+        description: stateProduct.description,
+        rating: stateProduct.rating,
+        image:stateProduct.image,
+        type:stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
+        countInStock:stateProduct.countInStock,
+        discount: stateProduct.discount
+      }
+        mutation.mutate(params,{
           // Cập nhật table lại liền sau khi create
             onSettled:()=>{
               queryProduct.refetch()
@@ -482,6 +517,16 @@ const handleDeleteManyProducts = (ids) =>{
   })
 }
 
+const handleChangeSelect = (value) =>{
+  // value sẽ là cái giá trị của type khi nhấn vào
+  // console.log('value', value)
+    setStateProduct({
+      ...stateProduct,
+      type: value
+    })
+}
+
+
     return (
         <div>
             <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
@@ -504,8 +549,8 @@ const handleDeleteManyProducts = (ids) =>{
           <Loading isPending={isPending}>
           <Form
     name="basic"
-    labelCol={{ span: 6 }}
-    wrapperCol={{ span: 18 }}
+    labelCol={{ span: 8 }}
+    wrapperCol={{ span: 16 }}
     style={{ maxWidth: 600 }}
     onFinish={onFinish}
     autoComplete="on"
@@ -526,9 +571,37 @@ const handleDeleteManyProducts = (ids) =>{
       name="type"
       rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
     >
-      <InputComponent value={stateProduct.type} onChange={handleOnChange} name="type" />
+     
+      <Select
+// Ngược lại với cái ở dưới
+      name="type"
+      // defaultValue="lucy"
+      // style={{ width: 120 }}
+      value={stateProduct.type}
+      onChange={handleChangeSelect}
+      options={renderOptions(typeProduct?.data?.data)}
+    />
+   
+     
+         {/* <InputComponent value={stateProduct.type} onChange={handleOnChange} name="type" /> */}
+    
+    
     </Form.Item>
 
+    {stateProduct.type === 'add_type' && (
+    <Form.Item
+    label='Nhập loại sản phẩm'
+      name="newType"
+      rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
+    >
+     
+     
+ 
+         <InputComponent value={stateProduct.newType} onChange={handleOnChange} name="newType" />
+    
+    
+    </Form.Item>
+)}
     <Form.Item
       label="Số lượng"
       name="countInStock"
@@ -559,6 +632,14 @@ const handleDeleteManyProducts = (ids) =>{
       rules={[{ required: true, message: 'Vui lòng nhập đánh giá' }]}
     >
       <InputComponent value={stateProduct.rating} onChange={handleOnChange} name="rating" />
+    </Form.Item>
+
+    <Form.Item
+      label="Giảm giá"
+      name="discount"
+      rules={[{ required: false, message: 'Vui lòng nhập đánh giá' }]}
+    >
+      <InputComponent value={stateProduct.discount} onChange={handleOnChange} name="discount" />
     </Form.Item>
 
     <Form.Item
@@ -648,6 +729,14 @@ const handleDeleteManyProducts = (ids) =>{
       rules={[{ required: true, message: 'Vui lòng nhập đánh giá' }]}
     >
       <InputComponent value={stateProductDetails.rating} onChange={handleOnChangeDetails} name="rating" />
+    </Form.Item>
+
+    <Form.Item
+      label="Giảm giá"
+      name="discount"
+      rules={[{ required: false, message: 'Vui lòng nhập đánh giá' }]}
+    >
+      <InputComponent value={stateProductDetails.discount} onChange={handleOnChangeDetails} name="discount" />
     </Form.Item>
 
     <Form.Item

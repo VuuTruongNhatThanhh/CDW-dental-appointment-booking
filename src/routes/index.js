@@ -1,7 +1,11 @@
 import AdminPage from "../pages/AdminPage/AdminPage";
+import DetailsOrderPage from "../pages/DetailsOrderPage/DetailsOrderPage";
 import HomePage from "../pages/HomePage/HomePage";
+import MyOrder from "../pages/MyOrderPage/MyOrder";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
 import OrderPage from "../pages/OrderPage/OrderPage";
+import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
+import PaymentPage from "../pages/PaymentPage/PaymentPage";
 import ProductDetailPage from "../pages/ProductDetailPage/ProductDetailPage";
 import ProductsPage from "../pages/ProductsPage/ProductsPage";
 import ProfilePage from "../pages/Profile/ProfilePage";
@@ -23,12 +27,35 @@ export const routes = [
 
     },
     {
+        path: '/my-order',
+        page: MyOrder,
+        isShowHeader: true
+
+    },
+    {
+        path: '/details-order/:id',
+        page: DetailsOrderPage,
+        isShowHeader: true
+    },
+    {
+        path: '/payment',
+        page: PaymentPage,
+        isShowHeader: true
+
+    },
+    {
+        path: '/orderSuccess',
+        page: OrderSuccess,
+        isShowHeader: true
+
+    },
+    {
         path: '/products',
         page: ProductsPage,
         isShowHeader: true
     },
     {
-        path: '/:type',
+        path: '/product/:type',
         page: TypeProductPage,
         isShowHeader: true
     },
@@ -48,7 +75,7 @@ export const routes = [
         isShowHeader: true
     },
     {
-        path: '/product-detail',
+        path: '/product-details/:id',
         page: ProductDetailPage,
         isShowHeader: true
     },

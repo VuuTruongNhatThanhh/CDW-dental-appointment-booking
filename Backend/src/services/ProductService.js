@@ -4,7 +4,7 @@ const Product = require("../models/ProductModel")
 // Xử lý api ở đây
 const createProduct = (newProduct) =>{
     return new Promise(async(resolve, reject) =>{
-        const {name, image, type, price, countInStock, rating, description} = newProduct
+        const {name, image, type, price, countInStock, rating, description, discount} = newProduct
         try{
             
               const checkProduct = await Product.findOne({
@@ -24,7 +24,8 @@ const createProduct = (newProduct) =>{
                 price,
                 countInStock,
                 rating,
-                description
+                description,
+                discount
             })
             if(createdProduct){
                 resolve({
@@ -141,12 +142,13 @@ const deleteManyProduct = (ids) =>{
 
 // limit là số lượng sản phẩm trên 1 trang (phân trang)
 const getAllProduct = (limit, page, sort, filter) =>{
-    console.log('sort', sort)
+    // console.log('sort', sort)
     return new Promise(async(resolve, reject) =>{
         try{
       
            const totalProduct = await Product.countDocuments()
-           console.log('filter', filter)
+            let allProduct = []
+        //    console.log('filter', filter)
            if(filter){
             const objectFilter = {}
             // Do ở đây mình đang đặt key là phần tử đầu tiên  get-all?page=1&limit=2&filter=name&filter=product2
@@ -179,9 +181,15 @@ const getAllProduct = (limit, page, sort, filter) =>{
                 totalPage: Math.ceil(totalProduct / limit)
             })
            }
-            // get all product, và phân trang theo limit
+
+           if(!limit){
+            allProduct =  await Product.find()
+           } else{
+    // get all product, và phân trang theo limit
             // skip là sẽ bỏ qua bao nhiêu object, ví dụ skip(2) nó sẽ bỏ qua 2 object Product đầu tiên
-           const allProduct =  await Product.find().limit(limit).skip(page * limit)
+            allProduct =  await Product.find().limit(limit).skip(page * limit)
+           }
+        
                 resolve({
                     status: 'OK',
                     message: 'SUCCESS',
@@ -196,6 +204,23 @@ const getAllProduct = (limit, page, sort, filter) =>{
     })
 }
 
+const getAllType = () =>{
+    return new Promise(async(resolve, reject) =>{
+        try{
+         
+            // distinct: chọn cái field mình muốn lấy dữ liệu
+           const allType =  await Product.distinct('type')
+                resolve({
+                    status: 'OK',
+                    message: 'SUCCESS',
+                    data: allType,
+                })
+        }catch(e){
+            reject(e)
+        }
+    })
+}
+
 
 module.exports = {
     createProduct,
@@ -203,6 +228,7 @@ module.exports = {
     getDetailProduct,
     deleteProduct,
     getAllProduct,
-    deleteManyProduct
+    deleteManyProduct,
+    getAllType
   
 }

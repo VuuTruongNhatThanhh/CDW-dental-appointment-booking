@@ -1,9 +1,10 @@
 import { Menu } from "antd";
 import React, { useState } from "react";
-import {UserOutlined,ProductOutlined,SettingOutlined } from '@ant-design/icons'
+import {UserOutlined,ProductOutlined,SettingOutlined, ShoppingCartOutlined } from '@ant-design/icons'
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
 import AdminUser from "../../components/AdminUser/AdminUser";
 import AdminProduct from "../../components/AdminProduct/AdminProduct";
+import OrderAdmin from "../../components/OrderAdmin/OrderAdmin";
 
 const items = [
     {
@@ -73,6 +74,11 @@ const items = [
     //   ],
     },
     {
+      key: 'order',
+      label: 'Quản lý đơn hàng',
+      icon: <ShoppingCartOutlined />,
+    },
+    {
       type: 'divider',
     },
     // {
@@ -129,8 +135,12 @@ const items = [
                     )
             case 'product':
                 return (
-                    <AdminProduct/>
+                <AdminProduct/>
                 )
+            case 'order':
+                return (
+                  <OrderAdmin/>
+                  )
         }
     }
     // const onOpenChange = (keys)=>{

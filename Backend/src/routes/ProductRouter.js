@@ -11,6 +11,7 @@ router.delete('/delete/:id',authMiddleware, ProductController.deleteProduct )
 router.get('/get-all', ProductController.getAllProduct )
 // post là do mình nhận dữ liệu qua request.body
 router.post('/delete-many',authMiddleware, ProductController.deleteManyProduct )
+router.get('/get-all-type', ProductController.getAllType )
 
 
 module.exports = router

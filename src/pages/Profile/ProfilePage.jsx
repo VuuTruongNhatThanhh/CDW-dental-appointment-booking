@@ -10,6 +10,7 @@ import { Button, Image, Upload, message } from "antd";
 import { updateUser } from '../../redux/slides/userSlide'
 import {UploadOutlined} from '@ant-design/icons'
 import { getBase64 } from '../../utils'
+import HeaderComponent from '../../components/HeaderComponent/HeaderComponent'
 
 
 const ProfilePage = () => {
@@ -98,6 +99,8 @@ const ProfilePage = () => {
        
     }
     return (
+        <>
+        <HeaderComponent isHiddenSearch/>
         <div style={{width:'1270px', margin:'0 auto', height:'500px'}}>
             <WrapperHeader>Thông tin người dùng</WrapperHeader>
             <Loading isPending={isPending}>
@@ -252,7 +255,9 @@ const ProfilePage = () => {
             </WrapperContentProfile>
             </Loading>
         </div>
+        </>
     )
+    
 }
 
 export default ProfilePage

@@ -8,7 +8,8 @@ const initialState = {
   avatar:'',
   access_token: '',
   id: '',
-  isAdmin: false
+  isAdmin: false,
+  city:'',
 }
 
 export const userSlide = createSlice({
@@ -17,7 +18,9 @@ export const userSlide = createSlice({
   reducers: {
     // Dùng redux để lấy ra thông tin của user, quản lý nó trên trình duyệt
     updateUser: (state, action)=>{
-      const { name ='', email='', access_token='', address='', phone='', avatar='', _id ='', isAdmin } = action.payload
+      const { name ='', email='', access_token='', address='', phone='', avatar='', _id ='', isAdmin, city='',
+        refreshToken =''
+       } = action.payload
       state.name = name;
       state.email = email;
       state.address = address;
@@ -26,6 +29,8 @@ export const userSlide = createSlice({
       state.id = _id;
       state.access_token = access_token;
       state.isAdmin = isAdmin;
+      state.city = city;
+      state.refreshToken = refreshToken;
     },
     // Để khi logout reset lại mấy cái này
     resetUser: (state)=>{
@@ -38,6 +43,7 @@ export const userSlide = createSlice({
       state.id = '';
       state.access_token = '';
       state.isAdmin= false;
+      state.city = ''
     },
    
   

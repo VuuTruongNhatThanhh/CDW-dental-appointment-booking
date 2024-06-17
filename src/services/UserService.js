@@ -1,6 +1,6 @@
 // Chức năng của những file này là tạo ra những function để call api
 import axios from "axios";
-import API_URL_BACK_END from "../apiConfig";
+import { API_URL_BACK_END, REACT_APP_FB_ID, REACT_APP_IS_LOCAL } from "../apiConfig";
 export const axiosJWT = axios.create()
 
 export const loginUser = async (data) => {
@@ -40,11 +40,13 @@ export const getAllUser = async (access_token) => {
     return res.data
 }
 
-export const refreshToken = async () => {
+export const refreshToken = async (refreshToken) => {
     const res = await axios.post(`${API_URL_BACK_END}/user/refresh-token`, {
         // Khi mà có cookie thì sẽ tự động lấy cookie
         // Phải đổi port back end thành 3000 để lấy được cookie ở front end, trong proxy package.json vẫn để 3001
-        withCredentials: true
+        headers:{
+            token: `Bearer ${refreshToken}`,
+        }
     })
     return res.data
 }

@@ -10,7 +10,7 @@ import { isJsonString } from './utils';
 import { jwtDecode } from "jwt-decode";
 import * as UserService from '../src/services/UserService'
 import { useDispatch, useSelector } from "react-redux";
-import { updateUser } from './redux/slides/userSlide';
+import { resetUser, updateUser } from './redux/slides/userSlide';
 import Loading from './components/LoadingComponent/Loading';
 
 
@@ -29,7 +29,7 @@ import Loading from './components/LoadingComponent/Loading';
       const { storageData, decoded } = handleDecoded()
     
         if(decoded?.id){
-          setIsLoading(true)
+          // setIsLoading(true)
           handleGetDetailsUser(decoded?.id, storageData)
         }else{
           setIsLoading(false)
@@ -39,9 +39,9 @@ import Loading from './components/LoadingComponent/Loading';
     },[])
 
     const handleDecoded = () => {
-      let storageData = localStorage.getItem('access_token')
+      let storageData = user?.access_token || localStorage.getItem('access_token')
       let decoded = {}
-      if(storageData && isJsonString(storageData)){
+      if(storageData && isJsonString(storageData) && !user?.access_token){
         // Đưa nó thành dạng bình thường
         storageData = JSON.parse(storageData)
          decoded = jwtDecode(storageData)
@@ -54,24 +54,32 @@ import Loading from './components/LoadingComponent/Loading';
     UserService.axiosJWT.interceptors.request.use(async(config) =>{
       const currentTime = new Date()
       const { decoded} = handleDecoded()
+      let storageRefreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = JSON.parse(storageRefreshToken)
+      const decodedRefreshToken = jwtDecode(refreshToken)
       // Nếu thời gian hết hạn cái token bé hơn thời gian hiện tại
       // :1000 đổi về cùng đơn vị mili second
       if(decoded?.exp <currentTime.getTime()/1000){
-          const data = await UserService.refreshToken()
+        if(decodedRefreshToken?.exp >currentTime.getTime()/1000){
+          const data = await UserService.refreshToken(refreshToken)
           config.headers['token'] = `Bearer ${data?.access_token}`
+      }else{
+        dispatch(resetUser())
       }
+    }
       return config;
     },(err) => {
       return Promise.reject(err)
     })
 
     const handleGetDetailsUser = async(id, token) => {
-   
+      let storageRefreshToken = localStorage.getItem('refresh_token')
+      const refreshToken = JSON.parse(storageRefreshToken)
       const res = await UserService.getDetailsUser(id, token)
       // Truyền tất cả thông tin người dùng vào redux/userSlide 
       //Tách từng thuộc tính của data ra, với đưa token vào trong cái biến access_token
-      dispatch(updateUser({...res?.data, access_token: token}))
-      setIsLoading(false)
+      dispatch(updateUser({...res?.data, access_token: token, refreshToken: refreshToken}))
+      // setIsLoading(false)
       
     }
   // useEffect(()=>{

@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema(
         phone: {type: String},
         address: {type: String},
         avatar: {type: String},
+        city: {type: String}
     },{
         // Sẽ có thời gian tạo và update
         timestamps: true

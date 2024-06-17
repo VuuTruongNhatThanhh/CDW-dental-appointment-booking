@@ -1,5 +1,5 @@
 const User = require("../models/UserModel")
-const bcrypt = require("bcrypt")
+const bcrypt = require("bcryptjs")
 const { generalAccessToken, generalRefreshToken } = require("./JwtService")
 const { use } = require("../routes/UserRouter")
 // Xử lý api ở đây
