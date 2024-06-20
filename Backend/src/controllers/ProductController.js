@@ -5,11 +5,11 @@ const ProductService = require('../services/ProductService')
 const createProduct = async(req, res) => {
     try{
         // Lấy ra những thuộc tính request sau khi send bằng TC
-        const {name, image, type, price, countInStock, rating, description, discount} = req.body
+        const {name,  type, price, unit} = req.body
         
       
 
-        if(!name || !image || !type || !price || !countInStock || !rating || !description){
+        if(!name ||  !type || !price || !unit){
             return res.status(200).json({
                 status: 'ERR',
                 message: 'The input is required'

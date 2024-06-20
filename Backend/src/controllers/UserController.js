@@ -6,7 +6,7 @@ const createUser = async(req, res) => {
     try{
         // Lấy ra những thuộc tính request sau khi send bằng TC
         // req.body mình có thể dùng console log in ra khi nhập thông tin từ json content vào, nó hiển thị ở cmd, hiển thị đầy đủ thuộc tính của user
-        const { email, password, confirmPassword} = req.body
+        const { email, password, confirmPassword, name, phone, isAdmin, isDoctor} = req.body
         // Kiểm tra xem có phải email hay không (check sau khi nhấn send trong TC)
         const reg = /^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         const isCheckEmail = reg.test(email)

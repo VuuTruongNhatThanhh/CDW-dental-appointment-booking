@@ -4,7 +4,7 @@ const Product = require("../models/ProductModel")
 // Xử lý api ở đây
 const createProduct = (newProduct) =>{
     return new Promise(async(resolve, reject) =>{
-        const {name, image, type, price, countInStock, rating, description, discount} = newProduct
+        const {name, type, price,  unit} = newProduct
         try{
             
               const checkProduct = await Product.findOne({
@@ -19,13 +19,9 @@ const createProduct = (newProduct) =>{
             // gọi bên model
             const createdProduct = await Product.create({
                 name, 
-                image, 
                 type, 
                 price,
-                countInStock,
-                rating,
-                description,
-                discount
+                unit
             })
             if(createdProduct){
                 resolve({

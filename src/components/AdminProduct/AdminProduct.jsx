@@ -31,35 +31,28 @@ const AdminProduct = () =>{
      const initial = () =>({
       name: '',
       price: '',
-      description: '',
-      rating: '',
-      image:'',
       type:'',
-      countInStock:'',
       newType:'',
-      discount:''
+      unit:''
      })
      const [form] = Form.useForm()
+     const [form2] = Form.useForm()
     const [stateProduct, setStateProduct] = useState(initial())
 
     const [stateProductDetails, setStateProductDetails] = useState({
       name: '',
       price: '',
-      description: '',
-      rating: '',
-      image:'',
       type:'',
-      countInStock:'',
-      discount:''
+      unit:''
   })
 
    
 
     const mutation = useMutationHooks(
       (data) => {
-          const{name, price, description, rating, image, type, countInStock, discount} = data
+          const{name, price, type, unit} = data
           // Trả về dữ liệu nghĩa là mutation thành công isSuccess
-         return ProductService.createProduct({name, price, description, rating, image, type, countInStock, discount})
+         return ProductService.createProduct({name, price, type, unit})
       }
     )
 
@@ -104,12 +97,8 @@ const AdminProduct = () =>{
         setStateProductDetails({
           name: res?.data?.name,
           price: res?.data?.price,
-          description: res?.data?.description,
-          rating: res?.data?.rating,
-          image: res?.data?.image,
           type: res?.data?.type,
-          countInStock: res?.data?.countInStock,
-          discount: res?.data?.discount
+          unit: res?.data?.unit
         })
       }
       setIsPendingUpdate(false)
@@ -276,7 +265,7 @@ const AdminProduct = () =>{
 
     const columns = [
       {
-        title: 'Tên sản phẩm',
+        title: 'Tên dịch vụ',
         dataIndex: 'name',
         // Sắp xếp theo bảng chữ cái
         sorter: (a,b) => a.name.length - b.name.length,
@@ -288,49 +277,54 @@ const AdminProduct = () =>{
         sorter: (a,b) => a.price - b.price,
         filters: [
           {
-            text: '>=50',
+            text: '>=1000000',
             value: '>=',
           },
           {
-            text: '<50',
+            text: '<1000000',
             value: '<',
           },
         ],
         onFilter: (value, record) => {
           // console.log('value', {value, record})
           if(value ==='>='){
-            return record.price >=50
+            return record.price >=1000000
           }
-          return record.price<50
+          return record.price<1000000
         },
       },
       {
-        title: 'Đánh giá',
-        dataIndex: 'rating',
-        sorter: (a,b) => a.rating - b.rating,
-        filters: [
-          {
-            text: '>=4',
-            value: '>=',
-          },
-          {
-            text: '<4',
-            value: '<',
-          },
-        ],
-        onFilter: (value, record) => {
-          // console.log('value', {value, record})
-          if(value ==='>='){
-            // return record.rating >=4
-            return Number(record.rating) >=4
-          }
-          return  Number(record.rating) <4
-        },
+        title: 'Đơn vị tính',
+        dataIndex: 'unit',
+        // ...getColumnSearchProps('unit')
       },
+      // {
+      //   title: 'Đánh giá',
+      //   dataIndex: 'rating',
+      //   sorter: (a,b) => a.rating - b.rating,
+      //   filters: [
+      //     {
+      //       text: '>=4',
+      //       value: '>=',
+      //     },
+      //     {
+      //       text: '<4',
+      //       value: '<',
+      //     },
+      //   ],
+      //   onFilter: (value, record) => {
+      //     // console.log('value', {value, record})
+      //     if(value ==='>='){
+      //       // return record.rating >=4
+      //       return Number(record.rating) >=4
+      //     }
+      //     return  Number(record.rating) <4
+      //   },
+      // },
       {
-        title: 'Loại sản phẩm',
+        title: 'Loại dịch vụ',
         dataIndex: 'type',
-
+        ...getColumnSearchProps('type')
       },
       {
         title: 'Chức năng',
@@ -344,10 +338,10 @@ const AdminProduct = () =>{
 
     useEffect(()=>{
       if(isSuccess && data?.status ==='OK'){
-        message.success('Tạo sản phẩm thành công')
+        message.success('Tạo dịch vụ thành công')
         handleCancel()
       } else if(isError) {
-        message.error('Có lỗi trong quá trình tạo sản phẩm')
+        message.error('Có lỗi trong quá trình tạo dịch vụ')
       }
     },[isSuccess])
 
@@ -390,14 +384,11 @@ const AdminProduct = () =>{
         setStateProduct({
           name: '',
           price: '',
-          description: '',
-          rating: '',
-          image:'',
+          
           type:'',
-          countInStock:'',
-          discount:''
+          unit:''
         })
-        form.resetFields()
+        form2.resetFields()
       };
 
       const handleCancelDelete =()=>{
@@ -418,11 +409,9 @@ const AdminProduct = () =>{
         setStateProductDetails({
           name: '',
           price: '',
-          description: '',
-          rating: '',
-          image:'',
+          
           type:'',
-          countInStock:''
+          unit:''
         })
         form.resetFields()
       };
@@ -431,12 +420,8 @@ const AdminProduct = () =>{
       const params = {
         name: stateProduct.name,
         price: stateProduct.price,
-        description: stateProduct.description,
-        rating: stateProduct.rating,
-        image:stateProduct.image,
         type:stateProduct.type === 'add_type' ? stateProduct.newType : stateProduct.type,
-        countInStock:stateProduct.countInStock,
-        discount: stateProduct.discount
+        unit: stateProduct.unit,
       }
         mutation.mutate(params,{
           // Cập nhật table lại liền sau khi create
@@ -529,7 +514,7 @@ const handleChangeSelect = (value) =>{
 
     return (
         <div>
-            <WrapperHeader>Quản lý sản phẩm</WrapperHeader>
+            <WrapperHeader>Quản lý dịch vụ</WrapperHeader>
             <div style={{marginTop:'10px'}}>
             <Button onClick={showModal} style={{height:'50px',width:'50px', borderRadius:'6px', borderStyle:'dashed'}} ><PlusOutlined /></Button>
             </div>
@@ -545,7 +530,7 @@ const handleChangeSelect = (value) =>{
     };
   }}/>
           </div>
-          <ModalComponent forceRender title="Tạo mới sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null} >
+          <ModalComponent forceRender title="Tạo mới dịch vụ" open={isModalOpen} onCancel={handleCancel} footer={null} >
           <Loading isPending={isPending}>
           <Form
     name="basic"
@@ -555,21 +540,21 @@ const handleChangeSelect = (value) =>{
     onFinish={onFinish}
     autoComplete="on"
     // truyền cho nó form để sử dụng form trong handleCancel
-    form={form}
+    form={form2}
   >
     <Form.Item
-      label="Tên sản phẩm"
+      label="Tên dịch vụ"
       name="name"
-      rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}
+      rules={[{ required: true, message: "Vui lòng nhập tên dịch vụ" }]}
     >
         {/* name phải trùng với giá trị stateProduct phía trên */}
       <InputComponent value={stateProduct.name} onChange={handleOnChange} name="name" />
     </Form.Item>
 
     <Form.Item
-      label="Loại sản phẩm"
+      label="Loại dịch vụ"
       name="type"
-      rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
+      rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
     >
      
       <Select
@@ -590,9 +575,9 @@ const handleChangeSelect = (value) =>{
 
     {stateProduct.type === 'add_type' && (
     <Form.Item
-    label='Nhập loại sản phẩm'
+    label='Nhập loại dịch vụ'
       name="newType"
-      rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
+      rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
     >
      
      
@@ -602,13 +587,13 @@ const handleChangeSelect = (value) =>{
     
     </Form.Item>
 )}
-    <Form.Item
+    {/* <Form.Item
       label="Số lượng"
       name="countInStock"
       rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
     >
       <InputComponent value={stateProduct.countInStock} onChange={handleOnChange} name="countInStock" />
-    </Form.Item>
+    </Form.Item> */}
 
     <Form.Item
       label="Giá tiền"
@@ -617,32 +602,39 @@ const handleChangeSelect = (value) =>{
     >
       <InputComponent value={stateProduct.price} onChange={handleOnChange} name="price" />
     </Form.Item>
-
     <Form.Item
+      label="Đơn vị tính"
+      name="unit"
+      rules={[{ required: true, message: 'Vui lòng nhập đơn vị tính' }]}
+    >
+      <InputComponent value={stateProduct.unit} onChange={handleOnChange} name="unit" />
+    </Form.Item>
+
+    {/* <Form.Item
       label="Mô tả sản phẩm"
       name="description"
       rules={[{ required: true, message: 'Vui lòng nhập mô tả sản phẩm' }]}
     >
       <InputComponent value={stateProduct.description} onChange={handleOnChange} name="description" />
-    </Form.Item>
+    </Form.Item> */}
 
-    <Form.Item
+    {/* <Form.Item
       label="Đánh giá"
       name="rating"
       rules={[{ required: true, message: 'Vui lòng nhập đánh giá' }]}
     >
       <InputComponent value={stateProduct.rating} onChange={handleOnChange} name="rating" />
-    </Form.Item>
+    </Form.Item> */}
 
-    <Form.Item
+    {/* <Form.Item
       label="Giảm giá"
       name="discount"
       rules={[{ required: false, message: 'Vui lòng nhập đánh giá' }]}
     >
       <InputComponent value={stateProduct.discount} onChange={handleOnChange} name="discount" />
-    </Form.Item>
+    </Form.Item> */}
 
-    <Form.Item
+    {/* <Form.Item
       label="Hình ảnh"
       name="image"
       rules={[{ required: true, message: 'Vui lòng chọn hình ảnh cho sản phẩm' }]}
@@ -661,17 +653,17 @@ const handleChangeSelect = (value) =>{
                     )}
                     </WrapperUploadFile>
 
-    </Form.Item>
+    </Form.Item> */}
   
     <Form.Item wrapperCol={{ offset: 18, span: 16 }}>
       <Button type="primary" htmlType="submit">
-        Tạo sản phẩm
+        Tạo dịch vụ
       </Button>
     </Form.Item>
   </Form>
           </Loading>
       </ModalComponent>
-      <DrawerComponent title="Chỉnh sửa thông tin sản phẩm" isOpen={isOpenDrawer} onClose={()=> setIsOpenDrawer(false)} width="70%">
+      <DrawerComponent title="Chỉnh sửa thông tin dịch vụ" isOpen={isOpenDrawer} onClose={()=> setIsOpenDrawer(false)} width="70%">
       <Loading isPending={isPendingUpdate || isPendingUpdated}>
           <Form
     name="basic"
@@ -683,29 +675,29 @@ const handleChangeSelect = (value) =>{
     form={form}
   >
     <Form.Item
-      label="Tên sản phẩm"
+      label="Tên dịch vụ"
       name="name"
-      rules={[{ required: true, message: "Vui lòng nhập tên sản phẩm" }]}
+      rules={[{ required: true, message: "Vui lòng nhập tên dịch vụ" }]}
     >
         {/* name phải trùng với giá trị stateProduct phía trên */}
       <InputComponent value={stateProductDetails.name} onChange={handleOnChangeDetails} name="name" />
     </Form.Item>
 
     <Form.Item
-      label="Loại sản phẩm"
+      label="Loại dịch vụ"
       name="type"
-      rules={[{ required: true, message: 'Vui lòng chọn loại sản phẩm' }]}
+      rules={[{ required: true, message: 'Vui lòng chọn loại dịch vụ' }]}
     >
       <InputComponent value={stateProductDetails.type} onChange={handleOnChangeDetails} name="type" />
     </Form.Item>
 
-    <Form.Item
+    {/* <Form.Item
       label="Số lượng"
       name="countInStock"
       rules={[{ required: true, message: 'Vui lòng nhập số lượng' }]}
     >
       <InputComponent value={stateProductDetails.countInStock} onChange={handleOnChangeDetails} name="countInStock" />
-    </Form.Item>
+    </Form.Item> */}
 
     <Form.Item
       label="Giá tiền"
@@ -714,32 +706,39 @@ const handleChangeSelect = (value) =>{
     >
       <InputComponent value={stateProductDetails.price} onChange={handleOnChangeDetails} name="price" />
     </Form.Item>
-
     <Form.Item
+      label="Đơn vị tính"
+      name="unit"
+      rules={[{ required: true, message: 'Vui lòng nhập đơn vị tính' }]}
+    >
+      <InputComponent value={stateProductDetails.unit} onChange={handleOnChangeDetails} name="unit" />
+    </Form.Item>
+
+    {/* <Form.Item
       label="Mô tả sản phẩm"
       name="description"
       rules={[{ required: true, message: 'Vui lòng nhập mô tả sản phẩm' }]}
     >
       <InputComponent value={stateProductDetails.description} onChange={handleOnChangeDetails} name="description" />
-    </Form.Item>
+    </Form.Item> */}
 
-    <Form.Item
+    {/* <Form.Item
       label="Đánh giá"
       name="rating"
       rules={[{ required: true, message: 'Vui lòng nhập đánh giá' }]}
     >
       <InputComponent value={stateProductDetails.rating} onChange={handleOnChangeDetails} name="rating" />
-    </Form.Item>
+    </Form.Item> */}
 
-    <Form.Item
+    {/* <Form.Item
       label="Giảm giá"
       name="discount"
       rules={[{ required: false, message: 'Vui lòng nhập đánh giá' }]}
     >
       <InputComponent value={stateProductDetails.discount} onChange={handleOnChangeDetails} name="discount" />
-    </Form.Item>
+    </Form.Item> */}
 
-    <Form.Item
+    {/* <Form.Item
       label="Hình ảnh"
       name="image"
       rules={[{ required: true, message: 'Vui lòng chọn hình ảnh cho sản phẩm' }]}
@@ -758,7 +757,7 @@ const handleChangeSelect = (value) =>{
                     )}
                     </WrapperUploadFile>
 
-    </Form.Item>
+    </Form.Item> */}
   
     <Form.Item wrapperCol={{ offset: 18, span: 16 }}>
       <Button type="primary" htmlType="submit">

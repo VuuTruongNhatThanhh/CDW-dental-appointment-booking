@@ -63,7 +63,16 @@ const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
           {user?.isAdmin && (
                 <WrapperContentPopUp  onClick={() => handleClickNavigate('admin')}>Quản lý hệ thống</WrapperContentPopUp>
           )}
-          <WrapperContentPopUp onClick={() => handleClickNavigate('my-order')}>Đơn hàng của tôi</WrapperContentPopUp>
+          {/* <WrapperContentPopUp onClick={() => handleClickNavigate('my-order')}>Đơn hàng của tôi</WrapperContentPopUp> */}
+          {!user?.isDoctor && (
+          <WrapperContentPopUp onClick={() => handleClickNavigate('appointment')}>Lịch khám đã đặt</WrapperContentPopUp>
+        )}
+         {user?.isDoctor && (
+          <WrapperContentPopUp onClick={() => handleClickNavigate('schedule')}>Lịch làm việc</WrapperContentPopUp>
+        )}
+          {user?.isDoctor && (
+          <WrapperContentPopUp onClick={() => handleClickNavigate('doctor_appointment')}>Lịch hẹn của khách hàng</WrapperContentPopUp>
+        )}
           <WrapperContentPopUp onClick={() => handleClickNavigate()}>Đăng xuất</WrapperContentPopUp>
         </div>
       );
@@ -79,7 +88,18 @@ const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
                 token : user?.access_token
               }
             })
-        }else{
+        }
+        else if(type === 'appointment'){
+            navigate('/appointment')
+        }
+        else if(type === 'schedule'){
+            navigate('/schedule')
+        }
+        else if(type === 'doctor_appointment'){
+            navigate('/doctor_appointment')
+        }
+        
+        else{
             handleLogout()
         }
         setIsOpenPopup(false)
@@ -103,18 +123,18 @@ const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
             >
                 {/* Chia cac cot ra (tong la 24 cot) */}
                  <Col span={6}>
-                    <WrapperTextHeader onClick={()=> navigate('/')}  style={{fontFamily:'Courier', cursor:'pointer'}}> TIMELESS PELLE NOOK </WrapperTextHeader>
+                    <WrapperTextHeader onClick={()=> navigate('/')}  style={{fontFamily:'Courier', cursor:'pointer'}}> NHA KHOA THANH PHÚC </WrapperTextHeader>
                  </Col>
                  {/* hidden search bên admin page là true thì không hiện cái này */}
                  {!isHiddenSearch &&(
                         <Col span={12} >
-                        <ButtonInputSearch
+                        {/* <ButtonInputSearch
                         size="large" 
                         textButton="Tìm kiếm" 
                         placeholder="Nhập sản phẩm muốn tìm kiếm"
                         bordered={false}
                       onChange={onSearch}
-                        />
+                        /> */}
        
        
                         </Col>
@@ -158,10 +178,10 @@ const HeaderComponent = ({isHiddenSearch=false, isHiddenCart =false}) => {
                 </Loading>
                 {!isHiddenCart&&(
                     <div onClick={()=> navigate('/order')} style={{cursor:'pointer'}}>
-                    <Badge count={order?.orderItems?.length} size="small">
+                    {/* <Badge count={order?.orderItems?.length} size="small">
                     <ShoppingCartOutlined style={{ fontSize: '30px', color: 'black'}} />
-                    </Badge>
-                    <span style={{color:'black'}}>Giỏ hàng</span>
+                    </Badge> */}
+                    {/* <span style={{color:'black'}}>Giỏ hàng</span> */}
 
                     </div>
                 )}

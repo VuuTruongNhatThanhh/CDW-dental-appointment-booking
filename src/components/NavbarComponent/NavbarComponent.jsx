@@ -48,10 +48,10 @@ const NavbarComponent = () => {
         }
     }
     return (
-        <div>
-            <WrapperLabelText>label</WrapperLabelText>
+        <div style={{backgroundColor:'#F6F1EB'}}>
+            <WrapperLabelText></WrapperLabelText>
             <WrapperContent>
-            {renderContent('text',['Túi', 'Ví', 'Thắt lưng'])}
+            {/* {renderContent('text',['Túi', 'Ví', 'Thắt lưng'])} */}
             </WrapperContent>
 {/* checkbox tỉnh thành */}
             {/* <WrapperContent>

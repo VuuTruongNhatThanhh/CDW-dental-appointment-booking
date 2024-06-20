@@ -5,7 +5,7 @@ const { use } = require("../routes/UserRouter")
 // Xử lý api ở đây
 const createUser = (newUser) =>{
     return new Promise(async(resolve, reject) =>{
-        const {name, email, password, confirmPassword, phone} = newUser
+        const {name, email, password, confirmPassword, phone, isAdmin, isDoctor} = newUser
         try{
             // Check xem email đã tồn tại trong db hay chưa, nếu chưa tồn tại trả về null
             const checkUser = await User.findOne({
@@ -24,7 +24,9 @@ const createUser = (newUser) =>{
                 name, 
                 email, 
                 password: hash, 
-                phone
+                phone,
+                isAdmin, 
+                isDoctor
             })
             if(createdUser){
                 resolve({
@@ -206,7 +208,7 @@ const getDetailsUser = (id) =>{
             const user = await User.findOne({
                 _id: id
             })
-            console.log('user',user)
+            // console.log('user',user)
             if(user===null){
                 resolve({
                     status: 'OK',

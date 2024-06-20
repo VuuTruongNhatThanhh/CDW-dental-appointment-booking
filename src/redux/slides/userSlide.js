@@ -10,6 +10,7 @@ const initialState = {
   id: '',
   isAdmin: false,
   city:'',
+  isDoctor: false
 }
 
 export const userSlide = createSlice({
@@ -19,7 +20,7 @@ export const userSlide = createSlice({
     // Dùng redux để lấy ra thông tin của user, quản lý nó trên trình duyệt
     updateUser: (state, action)=>{
       const { name ='', email='', access_token='', address='', phone='', avatar='', _id ='', isAdmin, city='',
-        refreshToken =''
+        refreshToken ='', isDoctor
        } = action.payload
       state.name = name;
       state.email = email;
@@ -31,6 +32,7 @@ export const userSlide = createSlice({
       state.isAdmin = isAdmin;
       state.city = city;
       state.refreshToken = refreshToken;
+      state.isDoctor = isDoctor;
     },
     // Để khi logout reset lại mấy cái này
     resetUser: (state)=>{

@@ -17,6 +17,7 @@ export const WrapperContent = styled.div`
     // align-items: center;
     flex-direction: column;
     gap:12px;
+    background-color: #F6F1EB
 `
 
 export const WrapperTextPrice = styled.div`

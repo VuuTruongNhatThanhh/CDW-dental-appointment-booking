@@ -12,6 +12,14 @@ import ProfilePage from "../pages/Profile/ProfilePage";
 import SignInPage from "../pages/SignInPage/SignInPage";
 import SignUpPage from "../pages/SignUpPage/SignUpPage";
 import TypeProductPage from "../pages/TypeProductPage/TypeProductPage";
+import MakeAppointmentPage from "../pages/MakeAppointmentPage/MakeAppointmentPage";
+import DoctorPage from "../pages/DoctorPage/DoctorPage";
+import DoctorDetailPage from "../pages/DoctorDetailPage/DoctorDetailPage";
+import MyAppointmentPage from "../pages/MyAppointmentPage/MyAppointmentPage";
+import DoctorSchedulePage from "../pages/DoctorSchedulePage/DoctorSchedulePage";
+import DoctorAppointmentPage from "../pages/DoctorAppointmentPage/DoctorAppointmentPage";
+
+// import MakeAppointment from "../pages/MakeAppointmentPage/MakeAppointmentPage";
 
 export const routes = [
     {
@@ -55,6 +63,11 @@ export const routes = [
         isShowHeader: true
     },
     {
+        path: '/doctors',
+        page: DoctorPage,
+        isShowHeader: true
+    },
+    {
         path: '/product/:type',
         page: TypeProductPage,
         isShowHeader: true
@@ -70,6 +83,11 @@ export const routes = [
         isShowHeader: false
     },
     {
+        path: '/make-appointment',
+        page: MakeAppointmentPage,
+        isShowHeader: true
+    },
+    {
         path: '/profile-user',
         page: ProfilePage,
         isShowHeader: true
@@ -77,6 +95,26 @@ export const routes = [
     {
         path: '/product-details/:id',
         page: ProductDetailPage,
+        isShowHeader: true
+    },
+    {
+        path: '/doctor-details/:id',
+        page: DoctorDetailPage,
+        isShowHeader: true
+    },
+    {
+        path: '/appointment',
+        page: MyAppointmentPage,
+        isShowHeader: true
+    },
+    {
+        path: '/schedule',
+        page: DoctorSchedulePage,
+        isShowHeader: true
+    },
+    {
+        path: '/doctor_appointment',
+        page: DoctorAppointmentPage,
         isShowHeader: true
     },
     {

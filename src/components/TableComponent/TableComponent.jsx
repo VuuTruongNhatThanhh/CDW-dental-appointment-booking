@@ -100,7 +100,7 @@ const TableComponent = (props) => {
 
 
         {/* Chọn hàng lớn hớn 0 thì hiện */}
-        {rowSelectedKeys.length >0 &&(
+        {/* {rowSelectedKeys.length >0 &&(
             <div style={{
               background: 'rgb(68, 68, 68)',
               color: '#fff',
@@ -110,7 +110,7 @@ const TableComponent = (props) => {
             }}
             onClick={handleDeleteAll}
             > 
-              Xóa
+              Xóa */}
             {/* <Dropdown menu={{ items }}>
             <a onClick={(e) => e.preventDefault()}>
             <Space>
@@ -119,8 +119,8 @@ const TableComponent = (props) => {
             </Space>
             </a>
             </Dropdown> */}
-            </div>
-        )}
+            {/* </div>
+        )} */}
 
             
      

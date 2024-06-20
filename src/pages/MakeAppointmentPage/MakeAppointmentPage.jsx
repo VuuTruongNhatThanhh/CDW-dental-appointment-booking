@@ -1,6 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import * as ProductService from '../../services/ProductService'
+import * as ScheduleService from '../../services/ScheduleService'
+import * as AppointmentService from '../../services/AppointmentService'
+import { useMutationHooks } from '../../hooks/useMutationHook';
+import { useSelector } from 'react-redux';
+import { convertPrice } from '../../utils';
 
 // Styled Components
 const Container = styled.div`
@@ -35,7 +41,7 @@ const Label = styled.label`
 `;
 
 const Input = styled.input`
-  width: 100%;
+  width: 98%;
   padding: 8px;
   border: 1px solid #ddd;
   border-radius: 5px;
@@ -70,102 +76,207 @@ const ButtonGroup = styled.div`
 
 const MakeAppointment = () => {
     const navigate = useNavigate()
+    const user = useSelector((state) => state.user)
     const handleNavigateHome=()=>{
         
         navigate('/')
       }
-  const [formData, setFormData] = useState({
-    fullName: '',
-    dob: '',
-    service: '',
-    dentist: '',
-    day: '',
-    time: ''
-  });
+      const [formData, setFormData] = useState({
+        serviceType: '',
+        service: '',
+        day: '',
+        dentist: '',
+        time: ''
+      });
+      const [services, setServices] = useState([]);
+      const [serviceTypes, setServiceTypes] = useState([]);
+      const [schedule, setSchedule] = useState([]);
+      const [doctors, setDoctors] = useState([]); // Thêm trạng thái để lưu danh sách bác sĩ
+  const [selectedDay, setSelectedDay] = useState(''); // Trạng thái lưu trữ ngày trong tuần được chọn
+  const [selectedSchedule, setSelectedSchedule] = useState(null); // Thêm state cho selectedSchedule
+  const [selectedDoctor, setSelectedDoctor] = useState(''); // State cho bác sĩ được chọn
+  const [selectedServicePrice, setSelectedServicePrice] = useState('');
+  const [selectedServiceUnit, setSelectedServiceUnit] = useState(''); // State cho đơn vị của dịch vụ được chọn
+      useEffect(() => {
+        const fetchServices = async () => {
+          try {
+            const res = await ProductService.getAllProduct();
+            setServices(res.data); // Giả sử res.data chứa danh sách dịch vụ
+    
+            // Lấy các loại dịch vụ duy nhất
+            const uniqueTypes = [...new Set(res.data.map(service => service.type))];
+            setServiceTypes(uniqueTypes);
+          } catch (error) {
+            console.error('Error fetching services:', error);
+          }
+        };
+    
+        const fetchSchedules = async () => {
+          try {
+            const res = await ScheduleService.getAllSchedule();
+            // console.log('schedule', res.data);
+            // console.log('user',user?.id)
+            setSchedule(res.data);
+          } catch (error) {
+            console.error('Error fetching schedules:', error);
+          }
+        };
+    
+        fetchServices();
+        fetchSchedules();
+      }, []);
 
- 
-  
+      useEffect(() => {
+        if (selectedDay !== '') {
+          const selectedSchedule = schedule.find(schedule => schedule.dayOfWeek === parseInt(selectedDay));
+          if (selectedSchedule) {
+           // Lọc tên bác sĩ duy nhất
+        const uniqueDoctors = new Set(selectedSchedule.workingHours.map(wh => JSON.stringify(wh.doctor)));
+        setSelectedSchedule(selectedSchedule.workingHours)
+        console.log('selectedSchedule.workingHours',selectedSchedule.workingHours)
+        const doctorArray = Array.from(uniqueDoctors).map(doctor => JSON.parse(doctor));
+        // console.log('doctorArray',doctorArray)
+        setDoctors(doctorArray);
+          } else {
+            setDoctors([]);
+          }
+        }
+      }, [selectedDay, schedule]);  
+
+      // Lọc dịch vụ theo loại dịch vụ đã chọn
+  const filteredServices = services.filter(service => service.type === formData.serviceType);
+
+   // Lọc các ngày trong tuần duy nhất từ schedule
+   const uniqueDaysOfWeek = [...new Set(schedule.map(schedule => schedule.dayOfWeek))];
+
+    // Mảng chuyển đổi từ số ngày trong tuần sang tên
+  const daysOfWeek = ["Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"];
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
+    if (name === 'serviceType') {
+      // Nếu chọn loại dịch vụ, reset giá trị của service và price
+      setFormData({
+        ...formData,
+        service: '', // Reset service
+        price: '', // Reset price
+        [name]: value,
+      });
+      setSelectedServicePrice(''); // Reset selectedServicePrice
+      setSelectedServiceUnit(''); // Reset selectedServiceUnit
+    }
+    else if (name === 'service') {
+      const selectedService = services.find(service => service._id === value);
+      setSelectedServicePrice(selectedService ? selectedService.price : '');
+      setSelectedServiceUnit(selectedService ? selectedService.unit : '');
+      setFormData({
+        ...formData,
+        service: value,
+
+      });
+  }
+    else if (name === 'day') {
+        setSelectedDay(value);
+        setFormData({
+            ...formData,
+            day: value,
+            dentist: '', // Reset giá trị của nha sĩ khi thay đổi ngày
+            time: '' // Reset luôn khung giờ nếu bạn muốn
+        });
+        setSelectedDoctor(''); // Reset selectedDoctor khi thay đổi ngày
+    } else if (name === 'dentist') {
+        setSelectedDoctor(value); // Cập nhật state cho bác sĩ được chọn
+        setFormData({
+            ...formData,
+            dentist: value
+        });
+    } else {
+        setFormData({
+            ...formData,
+            [name]: value
+        });
+    }
+};
+
+const mutation = useMutationHooks(
+  data => AppointmentService.createAppointment(data)
+)
+      
+  
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Appointment data:', formData);
+    // console.log('Appointment data:', formData.serviceType);
     alert('Đặt lịch thành công!');
+    const appointmentData = {
+      customer: user?.id,
+      service: formData.service,
+      workingHour: formData.time
+    };
+    mutation.mutate(appointmentData)
+    navigate('/')
   };
 
   const handleCancel = () => {
     setFormData({
-      fullName: '',
-      dob: '',
+      serviceType: '',
       service: '',
       dentist: '',
       day: '',
-      time: ''
+      time: ''  
     });
+    setSelectedServicePrice(''); // Reset giá khi làm mới form
+    setSelectedServiceUnit(''); // Reset unit khi làm mới form
   };
+
+  
+
+  
 
   return (
     <Container>
       <Title>Đặt Lịch Khám</Title>
       <Form onSubmit={handleSubmit}>
+       
         <FormGroup>
-          <Label>Họ và Tên</Label>
-          <Input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
+          <Label>Loại dịch vụ</Label>
+          <Select
+            name="serviceType"
+            value={formData.serviceType}
             onChange={handleChange}
             required
-          />
+          >
+            <option disabled value="">Chọn loại dịch vụ</option>
+            {serviceTypes.map((type, index) => (
+            <option key={index} value={type}>{type}</option>
+          ))}
+          </Select>
         </FormGroup>
 
         <FormGroup>
-          <Label>Ngày Sinh</Label>
-          <Input
-            type="date"
-            name="dob"
-            value={formData.dob}
-            onChange={handleChange}
-            required
-          />
-        </FormGroup>
-
-        <FormGroup>
-          <Label>Dịch Vụ</Label>
+          <Label>Dịch vụ</Label>
           <Select
             name="service"
             value={formData.service}
             onChange={handleChange}
             required
           >
-            <option value="">Chọn dịch vụ</option>
-            <option value="Tẩy trắng răng">Tẩy trắng răng</option>
-            <option value="Niềng răng">Niềng răng</option>
-            <option value="Răng sứ">Răng sứ</option>
+            <option disabled value="">Chọn dịch vụ</option>
+            {filteredServices.map((service) => (
+            <option key={service._id} value={service._id}>{service.name}</option>
+          ))}
           </Select>
         </FormGroup>
-
         <FormGroup>
-          <Label>Nha Sĩ</Label>
-          <Select
-            name="dentist"
-            value={formData.dentist}
-            onChange={handleChange}
-            required
-          >
-            <option value="">Chọn nha sĩ</option>
-            <option value="Nguyễn Văn A">Nguyễn Văn A</option>
-            <option value="Nguyễn Văn B">Nguyễn Văn B</option>
-            <option value="Nguyễn Văn C">Nguyễn Văn C</option>
-          </Select>
+          <Label>Giá tiền (VND)</Label>
+          <Input
+          disabled
+            type="text"
+            name="price"
+            value={`${convertPrice(selectedServicePrice)} / ${selectedServiceUnit}`}
+            readOnly
+          />
         </FormGroup>
-
         <FormGroup>
           <Label>Ngày trong tuần</Label>
           <Select
@@ -174,29 +285,52 @@ const MakeAppointment = () => {
             onChange={handleChange}
             required
           >
-            <option value="">Chọn ngày</option>
-            <option value="Thứ 7">Thứ 7</option>
-            <option value="Chủ nhật">Chủ nhật</option>
+            <option disabled value="">Chọn ngày</option>
+            {uniqueDaysOfWeek.map((day, index) => (
+              <option key={index} value={day}>{daysOfWeek[day]}</option>
+            ))}
+          </Select>
+        </FormGroup>
+        <FormGroup>
+          <Label>Nha sĩ</Label>
+          <Select
+            name="dentist"
+            value={formData.dentist}
+            onChange={handleChange}
+            required
+          >
+            <option disabled value="">Chọn nha sĩ</option>
+            {doctors.map((doctor, index) => (
+              <option key={doctor._id} value={doctor._id}>{doctor.name}</option>
+            ))}
           </Select>
         </FormGroup>
 
+        
+
         <FormGroup>
-          <Label>Khung giờ</Label>
+          <Label>Khung giờ (Chỉ hiển thị những khung giờ còn trống)</Label>
           <Select
             name="time"
             value={formData.time}
             onChange={handleChange}
             required
           >
-            <option value="">Chọn khung giờ</option>
-            <option value="7h đến 9h">7h đến 9h</option>
-            <option value="14h đến 16h">14h đến 16h</option>
+            <option disabled value="">Chọn khung giờ</option>
+            {selectedDoctor &&
+    selectedSchedule
+      .filter(wh => wh.doctor._id === selectedDoctor && wh.isAvailable)
+      .map((wh, index) => (
+        <option key={index} value={wh._id}>
+          {`${wh.startTime} - ${wh.endTime}`}
+        </option>
+      ))}
           </Select>
         </FormGroup>
 
         <ButtonGroup>
-          <Button onClick={handleNavigateHome} type="submit">Đặt Lịch</Button>
-          <Button type="button" cancel onClick={handleCancel}>Hủy</Button>
+          <Button  type="submit">Đặt Lịch</Button>
+          <Button type="button" cancel onClick={handleCancel}>Làm mới form</Button>
         </ButtonGroup>
       </Form>
     </Container>

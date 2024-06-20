@@ -267,21 +267,21 @@ const AdminUser = () =>{
         sorter: (a,b) => a.address.length - b.address.length,
         ...getColumnSearchProps('address')
       },
-      {
-        title: 'Admin',
-        dataIndex: 'isAdmin',
-        filters: [
-            {
-              text: 'True',
-              value: true,
-            },
-            {
-              text: 'False',
-              value: false,
-            },
-          ],
+      // {
+      //   title: 'Admin',
+      //   dataIndex: 'isAdmin',
+      //   filters: [
+      //       {
+      //         text: 'True',
+      //         value: true,
+      //       },
+      //       {
+      //         text: 'False',
+      //         value: false,
+      //       },
+      //     ],
 
-      },
+      // },
       {
         title: 'SĐT',
         dataIndex: 'phone',
@@ -295,9 +295,11 @@ const AdminUser = () =>{
         render: renderAction,
       },
     ];
-    const dataTable = users?.data.length && users?.data.map((user) =>{
-      return {...user, key:user._id, isAdmin: user.isAdmin ? 'TRUE' : 'FALSE'}
-    })
+    const dataTable = users?.data.length && users?.data
+    .filter(user => !user.isDoctor && !user.isAdmin) // Lọc những user có isDoctor = true
+    .map(user => {
+      return {...user, key: user._id, isAdmin: user.isAdmin ? 'TRUE' : 'FALSE'}
+    });
 
     useEffect(()=>{
       if(isSuccess && data?.status ==='OK'){
@@ -460,7 +462,7 @@ const handleDeleteManyUsers = (ids) =>{
         <div>
             <WrapperHeader>Quản lý người dùng</WrapperHeader>
             <div style={{marginTop:'10px'}}>
-            <Button onClick={showModal}  style={{height:'50px',width:'50px', borderRadius:'6px', borderStyle:'dashed'}}><PlusOutlined /></Button>
+            {/* <Button onClick={showModal}  style={{height:'50px',width:'50px', borderRadius:'6px', borderStyle:'dashed'}}><PlusOutlined /></Button> */}
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
@@ -565,7 +567,7 @@ const handleDeleteManyUsers = (ids) =>{
       name="email"
       rules={[{ required: true, message: 'Vui lòng nhập email' }]}
     >
-      <InputComponent value={stateUserDetails.email} onChange={handleOnChangeDetails} name="email" />
+      <InputComponent  value={stateUserDetails.email} onChange={handleOnChangeDetails} name="email" disabled />
     </Form.Item>
 
     <Form.Item

@@ -1,10 +1,16 @@
 import { Menu } from "antd";
 import React, { useState } from "react";
-import {UserOutlined,ProductOutlined,SettingOutlined, ShoppingCartOutlined } from '@ant-design/icons'
+import {UserOutlined,ProductOutlined,SettingOutlined, ShoppingCartOutlined, TeamOutlined, SnippetsOutlined,
+  ScheduleOutlined, CheckOutlined, CloseOutlined  } from '@ant-design/icons'
 import HeaderComponent from "../../components/HeaderComponent/HeaderComponent";
 import AdminUser from "../../components/AdminUser/AdminUser";
 import AdminProduct from "../../components/AdminProduct/AdminProduct";
+import AdminDoctor from "../../components/AdminDoctor/AdminDoctor";
 import OrderAdmin from "../../components/OrderAdmin/OrderAdmin";
+import AdminSchedule from "../../components/AdminSchedule/AdminSchedule";
+import AdminAppointment from "../../components/AdminAppointment/AdminAppointment";
+import AdminAppointmentCompleted from "../../components/AdminAppointmentCompleted/AdminAppointmentCompleted";
+import AdminAppointmentCancel from "../../components/AdminAppointmentCancel/AdminAppointmentCancel";
 
 const items = [
     {
@@ -45,8 +51,18 @@ const items = [
     //   ],
     },
     {
+      key: 'doctor',
+      label: 'Quản lý nha sĩ',
+      icon: <TeamOutlined />,
+    },
+    {
+      key: 'schedule',
+      label: 'Lịch làm việc',
+      icon: <SnippetsOutlined />,
+    },
+    {
       key: 'product',
-      label: 'Quản lý sản phẩm',
+      label: 'Quản lý dịch vụ',
       icon: <ProductOutlined />,
     //   children: [
     //     {
@@ -73,10 +89,25 @@ const items = [
     //     },
     //   ],
     },
+    // {
+    //   key: 'order',
+    //   label: 'Quản lý đơn hàng',
+    //   icon: <ShoppingCartOutlined />,
+    // },
     {
-      key: 'order',
-      label: 'Quản lý đơn hàng',
-      icon: <ShoppingCartOutlined />,
+      key: 'appointment',
+      label: 'Lịch hẹn sắp đến',
+      icon: <ScheduleOutlined />,
+    },
+    {
+      key: 'appointment-com',
+      label: 'Lịch sử cuộc hẹn',
+      icon: <CheckOutlined />,
+    },
+    {
+      key: 'appointment-can',
+      label: 'Cuộc hẹn đã hủy',
+      icon: <CloseOutlined />,
     },
     {
       type: 'divider',
@@ -133,6 +164,14 @@ const items = [
                 return (
                 <AdminUser/>
                     )
+            case 'doctor':
+                return (
+                <AdminDoctor/>
+                    )
+            case 'schedule':
+                 return (
+                <AdminSchedule/>
+                    )
             case 'product':
                 return (
                 <AdminProduct/>
@@ -141,6 +180,18 @@ const items = [
                 return (
                   <OrderAdmin/>
                   )
+            case 'appointment':
+                return (
+                  <AdminAppointment/>
+                  )   
+                  case 'appointment-com':
+                    return (
+                      <AdminAppointmentCompleted/>
+                      )   
+                      case 'appointment-can':
+                    return (
+                      <AdminAppointmentCancel/>
+                      )   
         }
     }
     // const onOpenChange = (keys)=>{

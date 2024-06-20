@@ -10,9 +10,9 @@ router.post('/log-out', userController.logoutUser )
 router.put('/update-user/:id',authUserMiddleware, userController.updateUser )
 // Có 1 bước xác thực authMiddleware để xem có phải admin hay không
 router.delete('/delete-user/:id',authMiddleware, userController.deleteUser )
-router.get('/getAll',authMiddleware, userController.getAllUser )
+router.get('/getAll', userController.getAllUser )
 // admin thì lấy được tất cả user, user lấy được của chính nó
-router.get('/get-details/:id',authUserMiddleware, userController.getDetailsUser )
+router.get('/get-details/:id', userController.getDetailsUser )
 
 router.post('/refresh-token', userController.refreshToken )
 router.post('/delete-many',authMiddleware, userController.deleteMany )
