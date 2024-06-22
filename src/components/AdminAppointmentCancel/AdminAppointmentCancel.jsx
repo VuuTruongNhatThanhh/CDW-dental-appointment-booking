@@ -77,7 +77,7 @@ const AdminAppointmentCancel = () =>{
       }
     )
 
-    const getAllUsers = async() =>{
+    const getAllAppointment = async() =>{
       const res = await AppointmentService.getAllAppointment()
       // console.log('res',res.data)
       return res
@@ -120,7 +120,7 @@ const AdminAppointmentCancel = () =>{
   //     mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
   //       // Cập nhật lại table sau khi xóa sản phẩm
   //       onSettled:()=>{
-  //         queryUser.refetch()
+  //         queryAppointment.refetch()
   //       }
   //     })
   // }
@@ -177,13 +177,13 @@ const AdminAppointmentCancel = () =>{
     const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
     // console.log('dataUpdated', dataUpdated)
     // const {isPending: isPendingProducts, data: products} = useQuery(['products'],getAllProduct)
-    const queryUser = useQuery({
-      queryKey: ['user'],
-      queryFn: getAllUsers
+    const queryAppointment = useQuery({
+      queryKey: ['appointment'],
+      queryFn: getAllAppointment
     })
     // console.log('user', )
 
-    const { isPending: isPendingUsers, data: users } = queryUser
+    const { isPending: isPendingUsers, data: appointments } = queryAppointment
     
     const renderAction = () =>{
       return (
@@ -308,7 +308,7 @@ const AdminAppointmentCancel = () =>{
       }
     };
 
-    console.log('users',users?.data)
+    // console.log('users',users?.data)
     const columns = [
       {
         title: 'Tên khách hàng',
@@ -364,8 +364,8 @@ const AdminAppointmentCancel = () =>{
       //   render: renderAction,
       // },
     ];
-    const filteredData = users?.data.filter(item => item?.appointment?.status === 'Cancelled');
-    const dataTable = filteredData.map((item, index) => ({
+    const filteredData = appointments?.data.filter(item => item?.appointment?.status === 'Cancelled');
+    const dataTable = filteredData?.reverse().map((item, index) => ({
       key: index,
       id: item?.appointment?._id,
       status: item?.appointment?.status,
@@ -467,7 +467,7 @@ const AdminAppointmentCancel = () =>{
           mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
             // Cập nhật lại table sau khi xóa sản phẩm
             onSettled:()=>{
-              queryUser.refetch()
+              queryAppointment.refetch()
             }
           })
       }
@@ -488,7 +488,7 @@ const AdminAppointmentCancel = () =>{
         mutation.mutate(stateUser,{
           // Cập nhật table lại liền sau khi create
             onSettled:()=>{
-              queryUser.refetch()
+              queryAppointment.refetch()
             }
         })
         // console.log('stateP', stateProduct)
@@ -547,7 +547,7 @@ const onUpdateUser = () =>{
   mutationUpdate.mutate({id:rowSelected, token: user.access_token, ...stateUserDetails },{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -558,7 +558,7 @@ const completedAppointment = () =>{
   mutationCompleted.mutate({id:rowSelected, status:'Completed'},{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -569,7 +569,7 @@ const cancelAppointment = () =>{
   mutationCancel.mutate({id:rowSelected, status:'Cancelled'},{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -581,7 +581,7 @@ const handleDeleteManyUsers = (ids) =>{
   mutationDeletedMany.mutate({ids: ids, token: user?.access_token},{
     // Cập nhật lại table sau khi xóa sản phẩm
     onSettled:()=>{
-      queryUser.refetch()
+      queryAppointment.refetch()
     }
   })
 }
@@ -593,7 +593,7 @@ const handleDeleteManyUsers = (ids) =>{
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
-          <TableComponent handleDeleteMany={handleDeleteManyUsers} columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
+          <TableComponent  columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
     return {
       // onRow này dùng để lấy ra được cái id của sản phẩm khi click vào
       onClick: (event) => {

@@ -4,7 +4,7 @@ import { Button, Form, Modal, Select, Space, message } from "antd";
 import {PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined} from '@ant-design/icons'
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
-import { getBase64, renderOptions } from "../../utils";
+import { convertPrice, getBase64, renderOptions } from "../../utils";
 import { useMutationHooks } from "../../hooks/useMutationHook";
 import * as ProductService from '../../services/ProductService'
 import Loading from "../LoadingComponent/Loading";
@@ -273,15 +273,15 @@ const AdminProduct = () =>{
       },
       {
         title: 'Giá tiền',
-        dataIndex: 'price',
+        dataIndex: 'price2',
         sorter: (a,b) => a.price - b.price,
         filters: [
           {
-            text: '>=1000000',
+            text: '>=1.000.000',
             value: '>=',
           },
           {
-            text: '<1000000',
+            text: '<1.000.000',
             value: '<',
           },
         ],
@@ -333,7 +333,7 @@ const AdminProduct = () =>{
       },
     ];
     const dataTable = products?.data.length && products?.data.map((product) =>{
-      return {...product, key:product._id}
+      return {...product, key:product._id, price2:convertPrice(product.price)}
     })
 
     useEffect(()=>{

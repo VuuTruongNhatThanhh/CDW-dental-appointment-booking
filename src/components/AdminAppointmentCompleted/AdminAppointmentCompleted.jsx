@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { WrapperHeader, WrapperUploadFile } from "./style";
-import { Button, Form, Space, message } from "antd";
+import { Button, Form, Select, Space, message } from "antd";
 import TableComponent from "../TableComponent/TableComponent";
 import InputComponent from "../InputComponent/InputComponent";
 import DrawerComponent from "../DrawerComponent/DrawerComponent";
@@ -22,6 +22,7 @@ const AdminAppointmentCompleted = () =>{
     const [isPendingUpdate, setIsPendingUpdate] = useState(false)
     const [isModalOpenDelete, setIsModalOpenDelete] = useState(false)
     const [monthlyRevenue, setMonthlyRevenue] = useState([]);
+    const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
 
     // Lấy thông tin user từ Redux
     const user = useSelector((state) => state?.user)
@@ -79,7 +80,7 @@ const AdminAppointmentCompleted = () =>{
       }
     )
 
-    const getAllUsers = async() =>{
+    const getAllAppointment = async() =>{
       const res = await AppointmentService.getAllAppointment()
       // console.log('res',res.data)
       return res
@@ -122,7 +123,7 @@ const AdminAppointmentCompleted = () =>{
   //     mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
   //       // Cập nhật lại table sau khi xóa sản phẩm
   //       onSettled:()=>{
-  //         queryUser.refetch()
+  //         queryAppointment.refetch()
   //       }
   //     })
   // }
@@ -179,13 +180,13 @@ const AdminAppointmentCompleted = () =>{
     const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
     // console.log('dataUpdated', dataUpdated)
     // const {isPending: isPendingProducts, data: products} = useQuery(['products'],getAllProduct)
-    const queryUser = useQuery({
-      queryKey: ['user'],
-      queryFn: getAllUsers
+    const queryAppointment = useQuery({
+      queryKey: ['appointment'],
+      queryFn: getAllAppointment
     })
     // console.log('user', )
 
-    const { isPending: isPendingUsers, data: users } = queryUser
+    const { isPending: isPendingUsers, data: appointments } = queryAppointment
     
     const renderAction = () =>{
       return (
@@ -318,7 +319,7 @@ const formatDate = (isoDate) => {
   return `${day}-${month}-${year}`;
 };
 
-    console.log('users',users?.data)
+    // console.log('users',users?.data)
     const columns = [
       {
         title: 'Tên khách hàng',
@@ -374,8 +375,8 @@ const formatDate = (isoDate) => {
         render: (createdAt) => formatDate(createdAt),
       },
     ];
-    const filteredData = users?.data.filter(item => item?.appointment?.status === 'Completed');
-    const dataTable = filteredData.map((item, index) => ({
+    const filteredData = appointments?.data.filter(item => item?.appointment?.status === 'Completed');
+    const dataTable = filteredData?.reverse().map((item, index) => ({
       key: index,
       id: item?.appointment?._id,
       createdAt: item?.appointment?.createdAt,
@@ -478,7 +479,7 @@ const formatDate = (isoDate) => {
           mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
             // Cập nhật lại table sau khi xóa sản phẩm
             onSettled:()=>{
-              queryUser.refetch()
+              queryAppointment.refetch()
             }
           })
       }
@@ -499,7 +500,7 @@ const formatDate = (isoDate) => {
         mutation.mutate(stateUser,{
           // Cập nhật table lại liền sau khi create
             onSettled:()=>{
-              queryUser.refetch()
+              queryAppointment.refetch()
             }
         })
         // console.log('stateP', stateProduct)
@@ -558,7 +559,7 @@ const onUpdateUser = () =>{
   mutationUpdate.mutate({id:rowSelected, token: user.access_token, ...stateUserDetails },{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -569,7 +570,7 @@ const completedAppointment = () =>{
   mutationCompleted.mutate({id:rowSelected, status:'Completed'},{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -580,7 +581,7 @@ const cancelAppointment = () =>{
   mutationCancel.mutate({id:rowSelected, status:'Cancelled'},{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -592,37 +593,66 @@ const handleDeleteManyUsers = (ids) =>{
   mutationDeletedMany.mutate({ids: ids, token: user?.access_token},{
     // Cập nhật lại table sau khi xóa sản phẩm
     onSettled:()=>{
-      queryUser.refetch()
+      queryAppointment.refetch()
     }
   })
 }
 
+const handleYearChange = (year) => {
+  setSelectedYear(year);
+};
+
 useEffect(() => {
-  if (users && users.data) {
+  if (appointments && appointments.data) {
       const revenueData = Array(12).fill(0);
-      users.data.forEach(user => {
+      appointments.data.forEach(user => {
           const { appointment } = user;
           if (appointment?.status === 'Completed') {
-              const month = new Date(appointment?.createdAt).getMonth();
-              revenueData[month] += appointment?.service?.price;
+              const appointmentDate = new Date(appointment?.createdAt);
+              const year = appointmentDate.getFullYear();
+              if (year === selectedYear) {
+                  const month = appointmentDate.getMonth();
+                  revenueData[month] += appointment?.service?.price;
+              }
           }
       });
 
       const formattedData = revenueData.map((revenue, index) => ({
           month: `Tháng ${index + 1}`,
-          revenue: convertPrice(revenue) +' VND'
+          revenue: revenue
       }));
 
       setMonthlyRevenue(formattedData);
   }
-}, [users]);
+}, [appointments, selectedYear]);
 
     return (
         <div>
             {/* <WrapperHeader>Lịch sử cuộc hẹn</WrapperHeader> */}
             <div>
             <h4>Doanh thu theo tháng</h4>
-            <ResponsiveContainer width="100%" height={400}>
+            <Select
+                    defaultValue={selectedYear}
+                    style={{ width: 120 }}
+                    onChange={handleYearChange}
+                >
+                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map(year => (
+                        <Select.Option key={year} value={year}>
+                            {year}
+                        </Select.Option>
+                    ))}
+                </Select>
+                <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={monthlyRevenue}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="month" />
+                        
+                        <Tooltip formatter={(value) => convertPrice(value) + ' VND'} />
+                        <Legend />
+                        <Bar dataKey="revenue" fill="#8884d8" name="Doanh thu"/>
+                    </BarChart>
+                </ResponsiveContainer>
+            {/* <ResponsiveContainer width="100%" height={400}>
                 <BarChart
                     width={500}
                     height={300}
@@ -633,12 +663,14 @@ useEffect(() => {
                 >
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
+                    <YAxis tickFormatter={(value) => convertPrice(value) } />
+                   
+          <Legend />
+        
                     <Legend />
-                    <Bar dataKey="revenue" fill="#8884d8" />
+                    <Bar dataKey="revenue" name="Doanh thu" fill="#8884d8" />
                 </BarChart>
-            </ResponsiveContainer>
+            </ResponsiveContainer> */}
         </div>
 
             {/* <div style={{marginTop:'10px'}}>

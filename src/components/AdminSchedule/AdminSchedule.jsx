@@ -91,7 +91,7 @@ const AdminSchedule = () =>{
         })
     }
 
-    const getAllUsers = async() =>{
+    const getAllSchedule = async() =>{
       const res = await ScheduleService.getAllSchedule()
       // console.log('res',res)
       return res
@@ -184,13 +184,13 @@ const AdminSchedule = () =>{
     const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
     // console.log('dataUpdated', dataUpdated)
     // const {isPending: isPendingProducts, data: products} = useQuery(['products'],getAllProduct)
-    const queryUser = useQuery({
+    const querySchedule = useQuery({
       queryKey: ['user'],
-      queryFn: getAllUsers
+      queryFn: getAllSchedule
     })
     // console.log('product', products)
 
-    const { isPending: isPendingUsers, data: users } = queryUser
+    const { isPending: isPendingUsers, data: schedules } = querySchedule
     // console.log('user', users)
 
     const renderAction = () =>{
@@ -346,7 +346,7 @@ const AdminSchedule = () =>{
     // .map(user => {
     //   return {...user, key: user._id, isAdmin: user.isAdmin ? 'TRUE' : 'FALSE'}
     // });
-    const dataTable = users?.data?.flatMap(user =>
+    const dataTable = schedules?.data?.flatMap(user =>
       user.workingHours?.map((hour, index) => ({
         ...user,
         ...hour,
@@ -418,7 +418,7 @@ const AdminSchedule = () =>{
           mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
             // Cập nhật lại table sau khi xóa sản phẩm
             onSettled:()=>{
-              queryUser.refetch()
+              querySchedule.refetch()
             }
           })
       }
@@ -439,7 +439,7 @@ const AdminSchedule = () =>{
         mutation.mutate(stateUser,{
           // Cập nhật table lại liền sau khi create
             onSettled:()=>{
-              queryUser.refetch()
+              querySchedule.refetch()
             }
         })
         // console.log('stateP', stateProduct)
@@ -500,7 +500,7 @@ const onUpdateUser = () =>{
   mutationUpdate.mutate({id:rowSelected, ...stateUserDetails },{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        querySchedule.refetch()
       }
   })
 
@@ -512,10 +512,20 @@ const handleDeleteManyUsers = (ids) =>{
   mutationDeletedMany.mutate({ids: ids, token: user?.access_token},{
     // Cập nhật lại table sau khi xóa sản phẩm
     onSettled:()=>{
-      queryUser.refetch()
+      querySchedule.refetch()
     }
   })
 }
+
+const validateTimeFormat = (rule, value, callback) => {
+  // Pattern to match hh:mm format
+  const timePattern = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  if (!value || value.match(timePattern)) {
+    callback();
+  } else {
+    callback('Vui lòng nhập đúng định dạng giờ:phút (hh:mm)');
+  }
+};
     return (
         <div>
             <WrapperHeader>Quản lý lịch làm việc</WrapperHeader>
@@ -524,7 +534,7 @@ const handleDeleteManyUsers = (ids) =>{
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
-          <TableComponent handleDeleteMany={handleDeleteManyUsers} columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
+          <TableComponent  columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
     return {
       // onRow này dùng để lấy ra được cái id của sản phẩm khi click vào
       onClick: (event) => {
@@ -646,15 +656,21 @@ const handleDeleteManyUsers = (ids) =>{
     <Form.Item
       label="Thời gian bắt đầu"
       name="startTime"
-      rules={[{ required: true, message: 'Vui lòng nhập thời gian bắt đầu ca' }]}
+      rules={[{ required: true, message: 'Vui lòng nhập thời gian bắt đầu ca' },
+        { validator: validateTimeFormat }
+      ]}
     >
-      <InputComponent value={stateUserDetails.startTime} onChange={handleOnChangeDetails} name="startTime" />
+      <InputComponent value={stateUserDetails.startTime} onChange={handleOnChangeDetails} name="startTime" 
+      
+      />
     </Form.Item>
 
     <Form.Item
       label="Thời gian kết thúc"
       name="endTime"
-      rules={[{ required: true, message: 'Vui lòng nhập thời gian kết thúc ca' }]}
+      rules={[{ required: true, message: 'Vui lòng nhập thời gian kết thúc ca' },
+        { validator: validateTimeFormat } 
+      ]}
     >
       <InputComponent value={stateUserDetails.endTime} onChange={handleOnChangeDetails} name="endTime" />
     </Form.Item>

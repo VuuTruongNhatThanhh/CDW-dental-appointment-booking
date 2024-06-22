@@ -38,13 +38,13 @@ const DoctorDetailComponent = ({idProduct}) => {
         setNumProduct(Number(value))
     }
 
-    const fetchGetDetailsProduct = async (context)=>{
+    const fetchGetDetailsDoctor = async (context)=>{
         const id = context?.queryKey && context?.queryKey[1]
         // console.log('id',id)
 
         if(id){
             const res = await UserService.getDetailsUser(id)
-            console.log('res-detail', res)
+            // console.log('res-detail', res)
             return res.data
         }
        
@@ -56,10 +56,10 @@ const DoctorDetailComponent = ({idProduct}) => {
      },[])
 
       useEffect(() => {
-        const orderRedux = order?.orderItems?.find((item) => item.product === productDetails?._id) 
-        if((orderRedux?.amount + numProduct) <= orderRedux?.countInstock || (!orderRedux && productDetails?.countInStock > 0)) {
+        const orderRedux = order?.orderItems?.find((item) => item.product === doctorDetails?._id) 
+        if((orderRedux?.amount + numProduct) <= orderRedux?.countInstock || (!orderRedux && doctorDetails?.countInStock > 0)) {
             setErrorLimitOrder(false)
-        } else if(productDetails?.countInStock === 0){
+        } else if(doctorDetails?.countInStock === 0){
             setErrorLimitOrder(true)
         }
     },[numProduct])
@@ -73,9 +73,9 @@ const DoctorDetailComponent = ({idProduct}) => {
         }
     }, [order.isSucessOrder])
 
-    const { isPending, data: productDetails} = useQuery({
+    const { isPending, data: doctorDetails} = useQuery({
         queryKey: ['product-details', idProduct],
-        queryFn: fetchGetDetailsProduct,
+        queryFn: fetchGetDetailsDoctor,
         // keep previous data là để data ko reset lại khi load more
         config: { enabled: !!idProduct }
       });
@@ -113,17 +113,17 @@ const DoctorDetailComponent = ({idProduct}) => {
             //         required: true,
             //     },
             // },
-            const orderRedux = order?.orderItems?.find((item) => item.product === productDetails?._id)
-            if((orderRedux?.amount + numProduct) <= orderRedux?.countInstock || (!orderRedux && productDetails?.countInStock > 0)) {
+            const orderRedux = order?.orderItems?.find((item) => item.product === doctorDetails?._id)
+            if((orderRedux?.amount + numProduct) <= orderRedux?.countInstock || (!orderRedux && doctorDetails?.countInStock > 0)) {
                 dispatch(addOrderProduct({
                     orderItem: {
-                        name: productDetails?.name,
+                        name: doctorDetails?.name,
                         amount: numProduct,
-                        image: productDetails?.image,
-                        price: productDetails?.price,
-                        product: productDetails?._id,
-                        discount: productDetails?.discount,
-                        countInstock: productDetails?.countInStock
+                        image: doctorDetails?.image,
+                        price: doctorDetails?.price,
+                        product: doctorDetails?._id,
+                        discount: doctorDetails?.discount,
+                        countInstock: doctorDetails?.countInStock
                     }
                 }))
             } else {
@@ -139,7 +139,7 @@ const DoctorDetailComponent = ({idProduct}) => {
         <Loading isPending={isPending}>
        <Row style={{padding:'20px'}}>
         <Col span={13}>
-            <Image style={{padding:'24px'}} src={productDetails?.avatar} alt="image product" preview={false} />
+            <Image style={{padding:'24px'}} src={doctorDetails?.avatar} alt="image product" preview={false} />
             <Row style={{paddingTop:'10px', justifyContent:'space-between'}}>
                 <WrapperStyleColImage span={4}>
                 {/* <WrapperStyleImageSmall src={imageProductSmall} alt="image small" preview={false}/>
@@ -161,17 +161,22 @@ const DoctorDetailComponent = ({idProduct}) => {
             </Row>
         </Col>
         <Col span={11} style={{padding:'10px'}}>
-            <WrapperStyleNameProduct>{productDetails?.name}</WrapperStyleNameProduct>
+            <WrapperStyleNameProduct>{doctorDetails?.name}</WrapperStyleNameProduct>
             <div>
-                {/* {renderStars(productDetails?.rating)} */}
-               {/* <Rate allowHalf value={Number(productDetails?.rating)} style={{fontSize:'10px', color:'rgb(253,216,54)'}}/> */}
+                {/* {renderStars(doctorDetails?.rating)} */}
+               {/* <Rate allowHalf value={Number(doctorDetails?.rating)} style={{fontSize:'10px', color:'rgb(253,216,54)'}}/> */}
             {/* <StarFilled style={{fontSize:'10px', color:'rgb(253,216,54)'}} />
             <StarFilled style={{fontSize:'10px', color:'rgb(253,216,54)'}} />
             <StarFilled style={{fontSize:'10px', color:'rgb(253,216,54)'}} /> */}
             {/* <WrapperStyleTextSell> | Đã bán 1000+</WrapperStyleTextSell> */}
             </div>
             <WrapperPriceProduct>
-                <WrapperPriceTextProduct>Số điện thoại: {convertPrice(productDetails?.phone)}</WrapperPriceTextProduct>
+                <WrapperPriceTextProduct>Số điện thoại: {convertPrice(doctorDetails?.phone)}</WrapperPriceTextProduct>
+               
+            </WrapperPriceProduct>
+            <WrapperPriceProduct>
+            <WrapperPriceTextProduct>Email: {doctorDetails?.email}</WrapperPriceTextProduct>
+               
             </WrapperPriceProduct>
            
 
@@ -180,7 +185,7 @@ const DoctorDetailComponent = ({idProduct}) => {
            
            <div>
                 {/* <span>Giao đến</span> */}
-                <span>{productDetails?.describe}</span>
+                <span>{doctorDetails?.describe}</span>
                 {/* <span>Đổi địa chỉ</span> */}
             </div>
             <div style={{margin:'10px 0 20px', padding:'10px 0', borderTop:'1px solid #e5e5e5', borderBottom:'1px solid #e5e5e5'}}>
@@ -189,8 +194,8 @@ const DoctorDetailComponent = ({idProduct}) => {
                     <button style={{border:'none', background:'transparent', cursor:'pointer'}} onClick={()=> handleChangeCount('decrease',numProduct === 1)}>
                     <MinusOutlined  style={{fontSize:'10px'}}  />
                     </button>
-                    <WrapperInputNumber min={1} max={productDetails?.countInStock} defaultValue={1} onChange={onChange} value={numProduct} size="small" />
-                    <button style={{border:'none', background:'transparent', cursor:'pointer'}} onClick={()=> handleChangeCount('increase',  numProduct === productDetails?.countInStock)}>
+                    <WrapperInputNumber min={1} max={doctorDetails?.countInStock} defaultValue={1} onChange={onChange} value={numProduct} size="small" />
+                    <button style={{border:'none', background:'transparent', cursor:'pointer'}} onClick={()=> handleChangeCount('increase',  numProduct === doctorDetails?.countInStock)}>
                     <PlusOutlined style={{fontSize:'10px'}} />
                     </button>
                      </WrapperQuantityProduct> */}

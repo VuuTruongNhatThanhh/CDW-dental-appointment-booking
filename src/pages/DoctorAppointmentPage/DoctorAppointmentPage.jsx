@@ -77,7 +77,7 @@ const DoctorAppointmentPage = () =>{
       }
     )
 
-    const getAllUsers = async() =>{
+    const getAllAppointment = async() =>{
       const res = await AppointmentService.getAllAppointment()
       // console.log('res',res.data)
       return res
@@ -120,7 +120,7 @@ const DoctorAppointmentPage = () =>{
   //     mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
   //       // Cập nhật lại table sau khi xóa sản phẩm
   //       onSettled:()=>{
-  //         queryUser.refetch()
+  //         queryAppointment.refetch()
   //       }
   //     })
   // }
@@ -177,13 +177,13 @@ const DoctorAppointmentPage = () =>{
     const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
     // console.log('dataUpdated', dataUpdated)
     // const {isPending: isPendingProducts, data: products} = useQuery(['products'],getAllProduct)
-    const queryUser = useQuery({
+    const queryAppointment = useQuery({
       queryKey: ['user'],
-      queryFn: getAllUsers
+      queryFn: getAllAppointment
     })
     // console.log('user', )
 
-    const { isPending: isPendingUsers, data: users } = queryUser
+    const { isPending: isPendingUsers, data: appointments } = queryAppointment
     
     const renderAction = () =>{
       return (
@@ -308,7 +308,7 @@ const DoctorAppointmentPage = () =>{
       }
     };
 
-    console.log('users',users?.data)
+    // console.log('users',users?.data)
     const columns = [
       {
         title: 'Tên khách hàng',
@@ -374,7 +374,7 @@ const DoctorAppointmentPage = () =>{
         render: renderAction,
       },
     ];
-    const filteredData = users && users.data ? users?.data.filter(item => item?.workingHour?.doctor?._id === user?.id && item?.appointment?.status ==='Confirmed'): [];
+    const filteredData = appointments && appointments?.data ? appointments?.data.filter(item => item?.workingHour?.doctor?._id === user?.id && item?.appointment?.status ==='Confirmed'): [];
     const dataTable = filteredData.map((item, index) => ({
       key: index,
       id: item?.appointment?._id,
@@ -478,7 +478,7 @@ const DoctorAppointmentPage = () =>{
           mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
             // Cập nhật lại table sau khi xóa sản phẩm
             onSettled:()=>{
-              queryUser.refetch()
+              queryAppointment.refetch()
             }
           })
       }
@@ -499,7 +499,7 @@ const DoctorAppointmentPage = () =>{
         mutation.mutate(stateUser,{
           // Cập nhật table lại liền sau khi create
             onSettled:()=>{
-              queryUser.refetch()
+              queryAppointment.refetch()
             }
         })
         // console.log('stateP', stateProduct)
@@ -558,29 +558,46 @@ const onUpdateUser = () =>{
   mutationUpdate.mutate({id:rowSelected, token: user.access_token, ...stateUserDetails },{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
 }
 
-const completedAppointment = () =>{
+// const completedAppointment = () =>{
 
-  mutationCompleted.mutate({id:rowSelected, status:'Completed'},{
-    // Cập nhật table lại liền sau khi update
-      onSettled:()=>{
-        queryUser.refetch()
-      }
-  })
+//   mutationCompleted.mutate({id:rowSelected, status:'Completed'},{
+//     // Cập nhật table lại liền sau khi update
+//       onSettled:()=>{
+//         queryAppointment.refetch()
+//       }
+//   })
 
-}
+// }
+
+const completedAppointment = () => {
+  setIsModalOpen(true); // Open confirmation modal
+};
+
+const confirmCompleteAppointment = () => {
+  AppointmentService.updateAppointment(rowSelected, { status: 'Completed' })
+      .then(() => {
+          message.success('Đã khám xong');
+          queryAppointment.refetch();
+          setIsModalOpen(false); // Close modal after action
+      })
+      .catch((error) => {
+          message.error('Có lỗi trong quá trình khám xong');
+          console.error('Error completing appointment:', error);
+      });
+};
 
 const cancelAppointment = () =>{
 
   mutationCancel.mutate({id:rowSelected, status:'Cancelled'},{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        queryAppointment.refetch()
       }
   })
 
@@ -592,7 +609,7 @@ const handleDeleteManyUsers = (ids) =>{
   mutationDeletedMany.mutate({ids: ids, token: user?.access_token},{
     // Cập nhật lại table sau khi xóa sản phẩm
     onSettled:()=>{
-      queryUser.refetch()
+      queryAppointment.refetch()
     }
   })
 }
@@ -604,7 +621,7 @@ const handleDeleteManyUsers = (ids) =>{
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
-          <TableComponent handleDeleteMany={handleDeleteManyUsers} columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
+          <TableComponent  columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
     return {
       // onRow này dùng để lấy ra được cái id của sản phẩm khi click vào
       onClick: (event) => {
@@ -616,157 +633,16 @@ const handleDeleteManyUsers = (ids) =>{
     };
   }}/>
           </div>
-          <ModalComponent forceRender title="Tạo mới sản phẩm" open={isModalOpen} onCancel={handleCancel} footer={null} >
-          <Loading isPending={isPending}>
-          <Form
-    name="basic"
-    labelCol={{ span: 6 }}
-    wrapperCol={{ span: 18 }}
-    style={{ maxWidth: 600 }}
-    onFinish={onFinish}
-    autoComplete="on"
-    // truyền cho nó form để sử dụng form trong handleCancel
-    form={form}
-  >
-    <Form.Item
-      label="Tên người dùng"
-      name="name"
-      rules={[{ required: true, message: "Vui lòng nhập tên người dùng" }]}
-    >
-        {/* name phải trùng với giá trị stateProduct phía trên */}
-      <InputComponent value={stateUser.name} onChange={handleOnChange} name="name" />
-    </Form.Item>
-
-    <Form.Item
-      label="Email"
-      name="email"
-      rules={[{ required: true, message: 'Vui lòng nhập email' }]}
-    >
-      <InputComponent value={stateUser.email} onChange={handleOnChange} name="email" />
-    </Form.Item>
-
-    <Form.Item
-      label="Số điện thoại"
-      name="phone"
-      rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-    >
-      <InputComponent value={stateUser.phone} onChange={handleOnChange} name="phone" />
-    </Form.Item>
-
-    {/* <Form.Item
-      label="Hình ảnh"
-      name="image"
-      rules={[{ required: true, message: 'Vui lòng chọn hình ảnh cho sản phẩm' }]}
-    >
-       <WrapperUploadFile onChange={handleOnChangeAvatar} maxCount={1}>
-                            <Button>Chọn ảnh</Button>
-                            {stateProduct?.image &&(
-                        <img src={stateProduct?.image} style={{
-                            height:'30px',
-                            width:'30px',
-                            borderRadius:'50%',
-                            objectFit:'cover',
-                            outline:'none' ,
-                            marginLeft:'10px'
-                        }} alt='avatar'/>
-                    )}
-                    </WrapperUploadFile>
-
-    </Form.Item> */}
   
-    <Form.Item wrapperCol={{ offset: 18, span: 16 }}>
-      <Button type="primary" htmlType="submit">
-        Tạo tài khoản
-      </Button>
-    </Form.Item>
-  </Form>
-          </Loading>
-      </ModalComponent>
-      <DrawerComponent title="Chỉnh sửa thông tin người dùng" isOpen={isOpenDrawer} onClose={()=> setIsOpenDrawer(false)} width="70%">
-      <Loading isPending={isPendingUpdate || isPendingUpdated}>
-          <Form
-    name="basic"
-    labelCol={{ span: 6 }}
-    wrapperCol={{ span: 18 }}
-    style={{ maxWidth: 600 }}
-    onFinish={onUpdateUser}
-    autoComplete="on"
-    form={form}
-  >
-    <Form.Item
-      label="Tên người dùng"
-      name="name"
-      rules={[{ required: true, message: "Vui lòng nhập tên người dùng" }]}
-    >
-        {/* name phải trùng với giá trị stateProduct phía trên */}
-      <InputComponent value={stateUserDetails.name} onChange={handleOnChangeDetails} name="name" />
-    </Form.Item>
 
-    <Form.Item
-      label="Email"
-      name="email"
-      rules={[{ required: true, message: 'Vui lòng nhập email' }]}
-    >
-      <InputComponent value={stateUserDetails.email} onChange={handleOnChangeDetails} name="email" />
-    </Form.Item>
-
-    <Form.Item
-      label="Số điện thoại"
-      name="phone"
-      rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}
-    >
-      <InputComponent value={stateUserDetails.phone} onChange={handleOnChangeDetails} name="phone" />
-    </Form.Item>
-
-    <Form.Item
-      label="Địa chỉ"
-      name="address"
-      rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}
-    >
-      <InputComponent value={stateUserDetails.address} onChange={handleOnChangeDetails} name="address" />
-    </Form.Item>
-
-   
-
-   
-
-   
-
-    <Form.Item
-      label="Ảnh đại diện"
-      name="avatar"
-      rules={[{ required: true, message: 'Vui lòng chọn ảnh đại diện' }]}
-    >
-       <WrapperUploadFile onChange={handleOnChangeAvatarDetails} maxCount={1}>
-                            <Button>Chọn ảnh</Button>
-                            {stateUserDetails?.avatar &&(
-                        <img src={stateUserDetails?.avatar} style={{
-                            height:'30px',
-                            width:'30px',
-                            borderRadius:'50%',
-                            objectFit:'cover',
-                            outline:'none' ,
-                            marginLeft:'10px'
-                        }} alt='avatar'/>
-                    )}
-                    </WrapperUploadFile>
-
-    </Form.Item>
-  
-    <Form.Item wrapperCol={{ offset: 18, span: 16 }}>
-      <Button type="primary" htmlType="submit">
-        Hoàn thành
-      </Button>
-    </Form.Item>
-  </Form>
-          </Loading>
-      </DrawerComponent>
-
-      <ModalComponent  title="Xoá tài khoản" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteUser} >
-          <Loading isPending={isPendingDeleted}>
-        <div>Bạn có chắc muốn xóa tài khoản này không?</div>
-          </Loading>
-      </ModalComponent>
+      <ModalComponent
+                title="Xác nhận hoàn thành lịch hẹn"
+                open={isModalOpen}
+                onCancel={handleCancel}
+                onOk={confirmCompleteAppointment}
+            >
+                <div>Bạn có chắc muốn hoàn thành lịch hẹn này không?</div>
+            </ModalComponent>
         </div>
     )
 }

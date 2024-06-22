@@ -146,7 +146,7 @@ const handleGetDetailsUser = async(id, token) => {
 
                 </ButtonComponent>
                 </Loading>
-                <p><WrapperTextLight>Quên mật khẩu</WrapperTextLight></p>
+                {/* <p><WrapperTextLight>Quên mật khẩu</WrapperTextLight></p> */}
                 <p>Chưa có tài khoản? <WrapperTextLight onClick={handleNavigateSignUp}>Tạo tài khoản</WrapperTextLight></p>
             </WrapperContainerLeft>
             <WrapperContainerRight>

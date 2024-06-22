@@ -18,7 +18,7 @@ const SignUpPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-
+    const [emailError, setEmailError] = useState(null); 
         // gọi qua bên api
 const mutation = useMutationHooks(
   data => UserService.signupUser(data)
@@ -39,11 +39,10 @@ useEffect(()=>{
   }
 },[isSuccess, isError])
 
-    const handleOnchangeEmail=(value) =>{
-         // Lấy tất cả ký tự từ bàn phím nhận vào bên InputForm truyền vào đây
-        setEmail(value)
-    } 
-
+const handleOnchangeEmail = (value) => {
+  setEmail(value);
+  
+};
     const handleOnchangePassword=(value) =>{
       setPassword(value)
   } 
@@ -63,13 +62,46 @@ const handleSignUp=()=>{
       navigate('/sign-in')
     }
 
+    const mutationCheckemail = useMutationHooks(
+      data => UserService.checkEmail(data)
+    )
+
+    const { data:dataCheckemail, isPendingCheckemail, isSuccessCheckemail, isErrorCheckemail } = mutationCheckemail
+    
+    useEffect(() => {
+      // Hàm kiểm tra email realtime
+      const checkEmailExists = async () => {
+          if (!email) return; // Không làm gì nếu email rỗng
+          try {
+           
+
+        mutationCheckemail.mutate({email: email})
+            //  console('data',dataCheckemail)
+              if (dataCheckemail?.status==='ERR') {
+                  setEmailError(dataCheckemail?.message);
+              }else if(dataCheckemail?.status==='ERH'){
+                setEmailError(dataCheckemail?.message);
+              } else if(dataCheckemail?.status==='OK') {
+                  setEmailError(null); // Reset lỗi nếu không tồn tại
+              }
+          } catch (error) {
+              console.error('Lỗi kiểm tra email:', error);
+          }
+      };
+
+      // Gọi hàm kiểm tra email khi email thay đổi
+      if(email){
+        checkEmailExists();
+      }
+  }, [email, dataCheckemail?.status]);
     return (
         <div style={{display:'flex', alignItems:'center', justifyContent:'center',background:'#ccc' , height:'100vh'}}>
         <div style={{width: '800px', height:'445px', borderRadius: '6px', background:'#fff', display:'flex'}}>
            <WrapperContainerLeft>
            <h1>Đăng ký</h1>
            <p>Tạo tài khoản để trải nghiệm mua sắm tốt hơn</p>
-           <InputForm style={{ marginBottom: '10px'}} placeholder="abc@gmail.com" value={email} onChange={handleOnchangeEmail}/>
+           <InputForm type="email" style={{ marginBottom: '10px'}} placeholder="abc@gmail.com" value={email} onChange={handleOnchangeEmail}/>
+           {emailError && <span style={{ color: 'red' }}>{emailError}</span>}
            <div style={{ position: 'relative' }}>
             <span
               onClick={() => setIsShowPassword(!isShowPassword)}

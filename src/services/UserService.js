@@ -13,6 +13,11 @@ export const signupUser = async (data) => {
     return res.data
 }
 
+export const checkEmail = async (email) => {
+    const res = await axios.post(`${API_URL_BACK_END}/user/checkemail`,email)
+    return res.data
+}
+
 export const getDetailsUser = async (id, access_token) => {
     const res = await axiosJWT.get(`${API_URL_BACK_END}/user/get-details/${id}`,{
         headers: {

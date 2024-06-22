@@ -91,7 +91,7 @@ const DoctorSchedulePage = () =>{
         })
     }
 
-    const getAllUsers = async() =>{
+    const getAllSchedule = async() =>{
       const res = await ScheduleService.getAllSchedule()
       // console.log('res',res)
       return res
@@ -184,13 +184,13 @@ const DoctorSchedulePage = () =>{
     const { data: dataDeletedMany, isPending: isPendingDeletedMany, isSuccess: isSuccessDeletedMany, isError: isErrorDeletedMany } = mutationDeletedMany
     // console.log('dataUpdated', dataUpdated)
     // const {isPending: isPendingProducts, data: products} = useQuery(['products'],getAllProduct)
-    const queryUser = useQuery({
+    const querySchedule = useQuery({
       queryKey: ['user'],
-      queryFn: getAllUsers
+      queryFn: getAllSchedule
     })
     // console.log('product', products)
 
-    const { isPending: isPendingUsers, data: users } = queryUser
+    const { isPending: isPendingUsers, data: schedules } = querySchedule
     // console.log('user', users)
 
     const renderAction = () =>{
@@ -346,7 +346,7 @@ const DoctorSchedulePage = () =>{
     // .map(user => {
     //   return {...user, key: user._id, isAdmin: user.isAdmin ? 'TRUE' : 'FALSE'}
     // });
-    const dataTable = users?.data?.flatMap(user =>
+    const dataTable = schedules?.data?.flatMap(user =>
       user.workingHours?.map((hour, index) => ({
         ...user,
         ...hour,
@@ -418,7 +418,7 @@ const DoctorSchedulePage = () =>{
           mutationDeleted.mutate({id: rowSelected, token: user?.access_token},{
             // Cập nhật lại table sau khi xóa sản phẩm
             onSettled:()=>{
-              queryUser.refetch()
+              querySchedule.refetch()
             }
           })
       }
@@ -439,7 +439,7 @@ const DoctorSchedulePage = () =>{
         mutation.mutate(stateUser,{
           // Cập nhật table lại liền sau khi create
             onSettled:()=>{
-              queryUser.refetch()
+              querySchedule.refetch()
             }
         })
         // console.log('stateP', stateProduct)
@@ -500,7 +500,7 @@ const onUpdateUser = () =>{
   mutationUpdate.mutate({id:rowSelected, ...stateUserDetails },{
     // Cập nhật table lại liền sau khi update
       onSettled:()=>{
-        queryUser.refetch()
+        querySchedule.refetch()
       }
   })
 
@@ -512,7 +512,7 @@ const handleDeleteManyUsers = (ids) =>{
   mutationDeletedMany.mutate({ids: ids, token: user?.access_token},{
     // Cập nhật lại table sau khi xóa sản phẩm
     onSettled:()=>{
-      queryUser.refetch()
+      querySchedule.refetch()
     }
   })
 }
@@ -524,7 +524,7 @@ const handleDeleteManyUsers = (ids) =>{
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
-          <TableComponent handleDeleteMany={handleDeleteManyUsers} columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
+          <TableComponent  columns={columns} isPending={isPendingUsers} data={dataTable} onRow={(record, rowIndex) => {
     return {
       // onRow này dùng để lấy ra được cái id của sản phẩm khi click vào
       onClick: (event) => {
@@ -703,11 +703,7 @@ const handleDeleteManyUsers = (ids) =>{
   </Loading>
       </DrawerComponent>
 
-      <ModalComponent  title="Xoá tài khoản" open={isModalOpenDelete} onCancel={handleCancelDelete} onOk={handleDeleteUser} >
-          <Loading isPending={isPendingDeleted}>
-        <div>Bạn có chắc muốn xóa tài khoản này không?</div>
-          </Loading>
-      </ModalComponent>
+      
         </div>
     )
 }
