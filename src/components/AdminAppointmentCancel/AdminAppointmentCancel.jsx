@@ -589,7 +589,7 @@ const handleDeleteManyUsers = (ids) =>{
         <div>
             <WrapperHeader>Lịch hẹn đã hủy</WrapperHeader>
             <div style={{marginTop:'10px'}}>
-            <Button onClick={showModal}  style={{height:'50px',width:'50px', borderRadius:'6px', borderStyle:'dashed'}}><PlusOutlined /></Button>
+            {/* <Button onClick={showModal}  style={{height:'50px',width:'50px', borderRadius:'6px', borderStyle:'dashed'}}><PlusOutlined /></Button> */}
             </div>
             <div style={{marginTop:'20px'}}>
               {/* Đưa tên cột và data trong table qua */}
