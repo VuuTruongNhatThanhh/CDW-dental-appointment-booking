@@ -153,7 +153,7 @@ const ProfilePage = () => {
 
                 <WrapperInput>
                     <WrapperLabel htmlFor="email">Email</WrapperLabel>
-                <InputForm style={{width:'300px'}} id="email" value={email} onChange={handleOnchangeEmail}/>
+                <InputForm disabled style={{width:'300px'}} id="email" value={email} onChange={handleOnchangeEmail}/>
                 {/* <ButtonComponent
                    
                     onClick={handleUpdate}
